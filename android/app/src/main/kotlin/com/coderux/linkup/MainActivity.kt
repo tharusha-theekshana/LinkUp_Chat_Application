@@ -1,4 +1,4 @@
-package com.example.link_up
+package com.coderux.linkup
 
 import io.flutter.embedding.android.FlutterActivity
 
