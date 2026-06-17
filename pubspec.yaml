@@ -47,11 +47,18 @@ dependencies:
   # Flutter plugin to use the Cloud Firestore API
   cloud_firestore: ^6.5.0
 
+  # A Flutter plugin to use the Firebase Cloud Storage API.
+  firebase_storage: ^13.4.2
+
   # Flutter package to use fonts from fonts.google.com.
   google_fonts: ^8.1.0
 
   # Fast generation of UUIDs.
   uuid: ^4.5.3
+
+  # A Flutter plugin for picking images from the image library, and taking new pictures with the camera.
+  image_picker: ^1.2.2
+
 
 dev_dependencies:
   flutter_test:

@@ -3,19 +3,20 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static const Color primaryColor = Color(0xFFDC143C);
-  static const Color secondaryColor = Color(0xFF74B9FF);
+  static const Color secondaryColor = Color(0xFF1C1C2E);
   static const Color accentColor = Color(0xFFFD79A8);
   static const Color backgroundColor = Color(0xFFF8F9FA);
   static const Color cardColor = Color(0xFFFFFFFF);
   static const Color textPrimaryColor = Color(0xFF2D3436);
   static const Color textSecondaryColor = Color(0xFF636E72);
   static const Color borderColor = Color(0xFFDDD6FE);
-  static const Color errorColor = Color(0xFFE17055);
+  static const Color errorColor = Color(0xFFDA0606);
   static const Color successColor = Color(0xFF00B894);
+  static const Color warningColor = Color(0xFFB8A900);
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: Colors.white.withAlpha(250),
     colorScheme: ColorScheme.light(
       primary: primaryColor,
       secondary: secondaryColor,
@@ -36,25 +37,29 @@ class AppTheme {
         fontWeight: FontWeight.w600,
         color: textPrimaryColor,
       ),
-      headlineSmall: GoogleFonts.poppins(
+      headlineSmall: GoogleFonts.quicksand(
         fontSize: 20,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         color: textPrimaryColor,
       ),
-      bodyLarge: GoogleFonts.poppins(
+      bodyLarge: GoogleFonts.quicksand(
         fontSize: 16,
         fontWeight: FontWeight.normal,
         color: textPrimaryColor,
       ),
-      bodyMedium: GoogleFonts.poppins(
+      bodyMedium: GoogleFonts.quicksand(
         fontSize: 14,
-        fontWeight: FontWeight.normal,
         color: textPrimaryColor,
       ),
       bodySmall: GoogleFonts.quicksand(
         fontSize: 10,
         fontWeight: FontWeight.normal,
         color: textSecondaryColor,
+      ),
+      displaySmall: GoogleFonts.quicksand(
+        fontSize: 12,
+        fontWeight: FontWeight.normal,
+        color: textPrimaryColor,
       ),
     ),
     appBarTheme: AppBarTheme(
@@ -119,7 +124,7 @@ class AppTheme {
       backgroundColor: primaryColor,
       foregroundColor: Colors.white,
       elevation: 0
-    )
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(

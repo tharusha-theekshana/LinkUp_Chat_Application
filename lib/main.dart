@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:link_up/core/bindings/global_bindings.dart';
 import 'package:link_up/home_page.dart';
 import 'package:link_up/routes/app_pages.dart';
 import 'package:link_up/routes/app_routes.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: AppPages.initial,
       getPages: AppPages.routes,
+      initialBinding: GlobalBindings(),
     );
   }
 }

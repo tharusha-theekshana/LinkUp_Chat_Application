@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:link_up/core/widgets/app_loader.dart';
-import 'package:link_up/theme/app_theme.dart';
+import 'package:get/get.dart';
+import 'package:link_up/routes/app_routes.dart';
+
+import '../../../theme/app_theme.dart';
+import '../../../core/widgets/loader/app_loader.dart';
+import '../../../core/widgets/logo/app_logo.dart';
+import '../../auth/core/controllers/auth_controller.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -17,6 +22,8 @@ class _SplashViewState extends State<SplashView>
 
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+
+  final _authController = Get.find<AuthController>();
 
   @override
   void initState() {
@@ -42,6 +49,18 @@ class _SplashViewState extends State<SplashView>
     );
 
     _controller.forward();
+    _checkAuthAndNavigate();
+  }
+
+  void _checkAuthAndNavigate() async {
+    await Future.delayed(Duration(seconds: 3));
+
+    if(_authController.isAuthenticated){
+      Get.offAllNamed(AppRoutes.login);
+      // Get.offAllNamed(AppRoutes.home);
+    }else{
+      Get.offAllNamed(AppRoutes.login);
+    }
   }
 
   @override
@@ -68,11 +87,7 @@ class _SplashViewState extends State<SplashView>
               opacity: _fadeAnimation,
               child: ScaleTransition(
                 scale: _scaleAnimation,
-                child: Image.asset(
-                  'assets/images/logo/logo.png',
-                  height: _deviceSize.height * 0.25,
-                  filterQuality: FilterQuality.high,
-                ),
+                child: AppLogo()
               ),
             ),
             Padding(

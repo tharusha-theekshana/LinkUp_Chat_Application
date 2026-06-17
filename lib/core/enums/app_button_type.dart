@@ -1,0 +1,1 @@
+enum AppButtonType { primary, outlined, text }
