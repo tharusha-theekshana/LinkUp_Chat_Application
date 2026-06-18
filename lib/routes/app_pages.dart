@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:link_up/features/landing/views/landing_view.dart';
 
 import 'app_routes.dart';
 import '../features/splash/views/splash_view.dart';
@@ -15,6 +16,9 @@ class AppPages {
 
   static final routes = [
     GetPage(name: AppRoutes.splash, page: () => const SplashView()),
+
+    // Landing
+    GetPage(name: AppRoutes.landing, page: () => const LandingView()),
 
     // Auth
     GetPage(name: AppRoutes.login, page: () => SignInView()),

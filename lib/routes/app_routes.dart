@@ -1,7 +1,7 @@
 class AppRoutes {
 
   static const String splash = '/splash';
-  static const String home = '/home';
+  static const String landing = '/landing';
 
   // Auth routers
   static const String login = '/auth/sign-in';

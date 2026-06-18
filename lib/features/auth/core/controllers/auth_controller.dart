@@ -20,15 +20,10 @@ class AuthController extends GetxController {
 
   bool get isAuthenticated => _user.value != null;
   final Rx<bool> _isInitialized = Rx<bool>(false);
-
   User? get user => _user.value;
-
   UserModel? get userData => _userData.value;
-
   bool get isLoading => _isLoading.value;
-
   String get error => _error.value;
-
   bool get isInitialized => _isInitialized.value;
 
   @override
@@ -50,7 +45,7 @@ class AuthController extends GetxController {
 
     if (currentUser != null) {
       _user.value = currentUser;
-      Get.offAllNamed(AppRoutes.home);
+      Get.offAllNamed(AppRoutes.landing);
     } else {
       Get.offAllNamed(AppRoutes.login);
     }
@@ -72,20 +67,16 @@ class AuthController extends GetxController {
 
       if (user != null) {
         _userData.value = user;
-        Get.offAllNamed(AppRoutes.home);
-      } else {
-        print("Hai");
+        Get.offAllNamed(AppRoutes.landing);
       }
+
     } catch (e) {
-      Get.dialog(
+      return Get.dialog(
         AppAlertDialog(
           title: "Login Failed",
-          message: "",
+          message: e.toString().replaceAll('Exception: ', ''),
           type: AlertType.error,
         ),
-      );
-      throw Exception(
-        "Exception during sign in with email and password ${e.toString()}",
       );
     } finally {
       _isLoading.value = false;
