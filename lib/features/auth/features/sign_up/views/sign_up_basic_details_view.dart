@@ -8,7 +8,6 @@ import '../../../../../core/widgets/scaffold/app_scaffold.dart';
 import '../../../../../core/widgets/text_field/app_text_field.dart';
 import '../../../core/widgets/step_indicator.dart';
 import '../controllers/sign_up_controller.dart';
-import '../../../core/controllers/auth_controller.dart';
 
 class SignUpBasicDetailsView extends StatefulWidget {
   const SignUpBasicDetailsView({super.key});
@@ -31,7 +30,6 @@ class _SignUpBasicDetailsViewState extends State<SignUpBasicDetailsView> {
   final _mobileNumberController = TextEditingController();
 
   // Controllers
-  final _authController = Get.find<AuthController>();
   final _signUpController = Get.find<SignUpController>();
 
   @override

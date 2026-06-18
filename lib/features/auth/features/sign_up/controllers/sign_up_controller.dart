@@ -48,7 +48,7 @@ class SignUpController extends GetxController {
     }
   }
 
-  // Store basic details in memory
+  // Store password in memory
   Future<void> setPassword({
     required String password
   }) async {

@@ -118,10 +118,11 @@ class AuthController extends GetxController {
   }
 
   // Forgot password send password rest email
-  Future<void> sendPasswordResetEmail(String email) async {
+  Future<void> sendPasswordResetEmail({required String email}) async {
     _isLoading.value = true;
     try {
       await _auth.sendPasswordResetEmail(email: email);
+
     } catch (e) {
       throw Exception(
         "Exception during send password rest email ${e.toString()}",

@@ -1,14 +1,16 @@
 import 'package:get/get.dart';
-import 'package:link_up/features/landing/views/landing_view.dart';
 
 import 'app_routes.dart';
 import '../features/splash/views/splash_view.dart';
+import '../features/landing/views/landing_view.dart';
 import '../features/auth/features/sign_in/views/sign_in_view.dart';
+import '../features/auth/features/sign_up/bindings/sign_up_bindings.dart';
 import '../features/auth/features/sign_up/views/sign_up_basic_details_view.dart';
 import '../features/auth/features/sign_up/views/sign_up_set_password_view.dart';
 import '../features/auth/features/sign_up/views/sign_up_bio_details_view.dart';
 import '../features/auth/features/sign_up/views/sign_up_profile_pic_view.dart';
-import '../features/auth/features/sign_up/bindings/sign_up_bindings.dart';
+import '../features/auth/features/forgot_password/views/forgot_password_view.dart';
+import '../features/auth/features/forgot_password/bindings/forgot_password_bindings.dart';
 
 class AppPages {
 
@@ -20,13 +22,17 @@ class AppPages {
     // Landing
     GetPage(name: AppRoutes.landing, page: () => const LandingView()),
 
-    // Auth
+    // Auth - login
     GetPage(name: AppRoutes.login, page: () => SignInView()),
 
+    // Auth - register
     GetPage(name: AppRoutes.signUpBasicDetails, page: () => SignUpBasicDetailsView(), binding: SignUpBindings()),
     GetPage(name: AppRoutes.signUpSetPassword, page: () => SignUpSetPasswordView(), binding: SignUpBindings()),
     GetPage(name: AppRoutes.signUpProfilePicDetails, page: () => SignUpProfilePicView(), binding: SignUpBindings()),
     GetPage(name: AppRoutes.signUpBioDetails, page: () => SignUpBioDetailsView(), binding: SignUpBindings()),
+
+    // Auth - forgot password
+    GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordView(), binding: ForgotPasswordBindings()),
   ];
 
 }

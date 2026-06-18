@@ -17,12 +17,13 @@ class AppLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
-    final logoHeight = size ?? deviceSize.height * 0.25;
+    final logoHeight = size ?? deviceSize.height * 0.2;
 
     Widget logo = Image.asset(
       assetPath,
       height: logoHeight,
       filterQuality: FilterQuality.high,
+
     );
 
     if (scaleAnimation != null) {

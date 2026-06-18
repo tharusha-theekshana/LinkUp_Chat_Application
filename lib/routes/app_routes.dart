@@ -10,7 +10,9 @@ class AppRoutes {
   static const String signUpProfilePicDetails = '/auth/sign-up/profile-pic-view';
   static const String signUpBioDetails = '/auth/sign-up/bio-details-view';
 
-  static const String forgotPassword = '/auth/forgot-password';
+  static const String forgotPassword = '/auth/forgot-password/initial-view';
+  static const String forgotPasswordEmailSent = '/auth/forgot-password/email-sent-view';
+
   static const String changePassword = '/auth/change-password';
 
 

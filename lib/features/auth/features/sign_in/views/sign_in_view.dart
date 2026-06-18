@@ -167,9 +167,7 @@ class _SignInViewState extends State<SignInView> {
   // Forgot password text area
   Widget _forgotPassword() {
     return GestureDetector(
-      onTap: () {
-
-      },
+      onTap: ()  => Get.toNamed(AppRoutes.forgotPassword),
       child: Align(
         alignment: Alignment.center,
         child: Text(
