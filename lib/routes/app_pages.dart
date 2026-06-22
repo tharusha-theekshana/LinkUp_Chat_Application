@@ -11,6 +11,8 @@ import '../features/auth/features/sign_up/views/sign_up_bio_details_view.dart';
 import '../features/auth/features/sign_up/views/sign_up_profile_pic_view.dart';
 import '../features/auth/features/forgot_password/views/forgot_password_view.dart';
 import '../features/auth/features/forgot_password/bindings/forgot_password_bindings.dart';
+import '../features/profile/views/profile_view.dart';
+import '../features/profile/bindings/profile_bindings.dart';
 
 class AppPages {
 
@@ -33,6 +35,9 @@ class AppPages {
 
     // Auth - forgot password
     GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordView(), binding: ForgotPasswordBindings()),
+
+    // Profile
+    GetPage(name: AppRoutes.profile, page: () => ProfileView(), binding: ProfileBindings()),
   ];
 
 }

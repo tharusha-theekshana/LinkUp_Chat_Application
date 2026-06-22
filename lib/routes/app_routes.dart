@@ -15,5 +15,6 @@ class AppRoutes {
 
   static const String changePassword = '/auth/change-password';
 
-
+  // Profile
+  static const String profile = '/profile';
 }

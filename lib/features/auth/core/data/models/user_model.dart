@@ -36,6 +36,44 @@ class UserModel {
     this.bannedAt,
   });
 
+  UserModel copyWith({
+    String? id,
+    String? fullName,
+    String? userName,
+    String? email,
+    String? mobile,
+    String? photoUrl,
+    String? bio,
+    String? dob,
+    bool? isOnline,
+    bool? isPremiumUser,
+    DateTime? lastSeen,
+    DateTime? createdAt,
+    String? role,
+    String? status,
+    String? bannedReason,
+    DateTime? bannedAt,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      userName: userName ?? this.userName,
+      email: email ?? this.email,
+      mobile: mobile ?? this.mobile,
+      photoUrl: photoUrl ?? this.photoUrl,
+      bio: bio ?? this.bio,
+      dob: dob ?? this.dob,
+      isOnline: isOnline ?? this.isOnline,
+      isPremiumUser: isPremiumUser ?? this.isPremiumUser,
+      lastSeen: lastSeen ?? this.lastSeen,
+      createdAt: createdAt ?? this.createdAt,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      bannedReason: bannedReason ?? this.bannedReason,
+      bannedAt: bannedAt ?? this.bannedAt,
+    );
+  }
+
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       id: map['id'] ?? '',
@@ -53,9 +91,8 @@ class UserModel {
       role: map['role'] ?? 'user',
       status: map['status'] ?? 'active',
       bannedReason: map['bannedReason'],
-      bannedAt: map['bannedAt'] != null
-          ? DateTime.parse(map['bannedAt'])
-          : null,
+      bannedAt:
+      map['bannedAt'] != null ? DateTime.parse(map['bannedAt']) : null,
     );
   }
 

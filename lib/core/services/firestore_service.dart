@@ -17,7 +17,6 @@ class FirestoreService {
           .collection(_userCollection)
           .doc(user.id)
           .set(user.toMap());
-
     } catch (e) {
       throw Exception("Exception during create user ${e.toString()}");
     }
@@ -76,6 +75,25 @@ class FirestoreService {
       }
     } catch (e) {
       throw Exception("Exception during get user details ${e.toString()}");
+    }
+  }
+
+  // Get user data as stream
+  Stream<UserModel?> getUserStream({required String userId}) {
+    return _firestore
+        .collection(_userCollection)
+        .doc(userId)
+        .snapshots()
+        .map((doc) => doc.exists ? UserModel.fromMap(doc.data()!) : null);
+  }
+
+  // Update user
+  Future<void> updateUser(UserModel user) async {
+    try {
+      await _firestore.collection(_userCollection).doc(user.id).update(user.toMap());
+
+    } catch (e) {
+      throw Exception("Exception during update user ${e.toString()}");
     }
   }
 }
