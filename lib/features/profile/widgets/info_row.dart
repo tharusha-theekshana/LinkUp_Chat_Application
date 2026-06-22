@@ -43,7 +43,7 @@ class InfoRow extends StatelessWidget {
                   label,
                   style: theme.textTheme.bodySmall!.copyWith(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withAlpha(150),
                   ),
                 ),
                 const SizedBox(height: 3),

@@ -46,7 +46,7 @@ class InfoCard extends StatelessWidget {
     final divider = Divider(
       height: 1,
       thickness: 0.5,
-      color: Theme.of(context).dividerColor.withOpacity(0.15),
+      color: Theme.of(context).dividerColor.withAlpha(35),
       indent: 14,
       endIndent: 14,
     );

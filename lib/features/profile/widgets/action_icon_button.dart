@@ -24,10 +24,10 @@ class ActionIconButton extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha(25),
               shape: BoxShape.circle,
               border: Border.all(
-                color: color.withOpacity(0.2),
+                color: color.withAlpha(45),
                 width: 1.2,
               ),
             ),
