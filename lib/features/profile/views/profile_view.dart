@@ -242,7 +242,7 @@ class _ProfileViewState extends State<ProfileView> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withAlpha(25)),
+              color: Theme.of(context).colorScheme.primary.withAlpha(25),
               shape: BoxShape.circle,
               border: Border.all(
                 color: Theme.of(context).colorScheme.primary.withAlpha(50),
