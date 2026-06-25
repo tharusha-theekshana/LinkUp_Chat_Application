@@ -127,7 +127,7 @@ class ChatModel {
     );
   }
 
-  int getCurrentCount(String userId) {
+  int getUnreadCount(String userId) {
     return unreadCount[userId] ?? 0;
   }
 
