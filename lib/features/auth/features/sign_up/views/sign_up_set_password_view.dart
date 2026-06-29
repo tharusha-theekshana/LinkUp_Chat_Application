@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../routes/app_routes.dart';
 import '../../../../../core/constants/app_regex.dart';
 import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/scaffold/app_scaffold.dart';
@@ -143,7 +142,6 @@ class _SignUpSetPasswordViewState extends State<SignUpSetPasswordView> {
     if (_formKey.currentState!.validate()) {
       await _signUpController.setPassword(password: _passwordController.text);
 
-      Get.toNamed(AppRoutes.signUpProfilePicDetails);
     } else {
       Get.log("Form is not valid");
     }

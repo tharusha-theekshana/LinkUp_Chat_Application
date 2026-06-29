@@ -7,7 +7,8 @@ class AppScaffold extends StatelessWidget {
   final Widget? floatingActionButton;
   final EdgeInsetsGeometry? padding;
   final Size deviceSize;
-  final bool? avoidBottomInsets;
+  final bool avoidBottomInsets;
+  final bool extendBody;
 
   const AppScaffold({
     super.key,
@@ -17,7 +18,8 @@ class AppScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.floatingActionButton,
     this.padding,
-    this.avoidBottomInsets
+    this.avoidBottomInsets = false,
+    this.extendBody = false,
   });
 
   @override
@@ -26,12 +28,17 @@ class AppScaffold extends StatelessWidget {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: appBar,
-        resizeToAvoidBottomInset: avoidBottomInsets ?? false,
+        extendBody: extendBody,
+        resizeToAvoidBottomInset: avoidBottomInsets,
         body: SafeArea(
           child: Padding(
-            padding: padding ?? EdgeInsets.symmetric(
-                vertical: deviceSize.height * 0.02,
-                horizontal: deviceSize.width * 0.03),
+            padding: padding ??
+                EdgeInsets.only(
+                  top: deviceSize.height * 0.02,
+                  left: deviceSize.width * 0.03,
+                  right: deviceSize.width * 0.03,
+                  bottom: deviceSize.height * 0.02
+                ),
             child: body,
           ),
         ),

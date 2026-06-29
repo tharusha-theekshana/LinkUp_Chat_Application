@@ -102,6 +102,7 @@ class _AppTextFieldState extends State<AppTextField> {
           textInputAction: widget.textInputAction,
           focusNode: widget.focusNode,
           onEditingComplete: widget.onEditingComplete,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           style: Theme.of(
             context,
           ).textTheme.displaySmall!.copyWith(fontWeight: FontWeight.w500),

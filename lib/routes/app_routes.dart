@@ -7,6 +7,7 @@ class AppRoutes {
   static const String login = '/auth/sign-in';
   static const String signUpBasicDetails = '/auth/sign-up/basic-details-view';
   static const String signUpSetPassword = '/auth/sign-up/set-password-view';
+  static const String signUpEmailVerification = '/auth/sign-up/email-verification';
   static const String signUpProfilePicDetails = '/auth/sign-up/profile-pic-view';
   static const String signUpBioDetails = '/auth/sign-up/bio-details-view';
 

@@ -28,12 +28,7 @@ class _ProfileViewState extends State<ProfileView> {
   Widget build(BuildContext context) {
     _deviceSize = MediaQuery.of(context).size;
 
-    return AppScaffold(
-      deviceSize: _deviceSize,
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: SingleChildScrollView(
+    return  SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -47,8 +42,7 @@ class _ProfileViewState extends State<ProfileView> {
             SizedBox(height: _deviceSize.height * 0.02),
           ],
         ),
-      ),
-    );
+      );
   }
 
   // Top level widgets with profile pic and other details
@@ -175,21 +169,19 @@ class _ProfileViewState extends State<ProfileView> {
                 label: 'Email',
                 value: user?.email,
               ),
-              InfoRow(
-                icon: Icons.phone,
-                label: 'Phone',
-                value: user?.mobile,
-              ),
+              InfoRow(icon: Icons.phone, label: 'Phone', value: user?.mobile),
             ],
           ),
           const SizedBox(height: 12),
           InfoCard(
             label: 'ABOUT',
-            children: [InfoRow(
-              icon:   Icons.edit_note_rounded,
-              label: 'Bio',
-              value: user?.bio,
-            ),],
+            children: [
+              InfoRow(
+                icon: Icons.edit_note_rounded,
+                label: 'Bio',
+                value: user?.bio,
+              ),
+            ],
           ),
         ],
       );

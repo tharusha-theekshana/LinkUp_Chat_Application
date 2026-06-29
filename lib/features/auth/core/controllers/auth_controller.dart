@@ -1,12 +1,14 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:link_up/core/exceptions/firebase_exceptions.dart';
 
 import '../../../../routes/app_routes.dart';
 import '../data/entities/user_data_entity.dart';
 import '../data/models/user_model.dart';
 import '../../../../core/enums/alert_type.dart';
 import '../../../../core/widgets/alert_dialogs/app_alert_dialogs.dart';
-import '../../../../core/widgets/snack_bar/app_snack_bar.dart';
 import '../services/auth_service.dart';
 
 class AuthController extends GetxController {
@@ -69,7 +71,14 @@ class AuthController extends GetxController {
         _userData.value = user;
         Get.offAllNamed(AppRoutes.landing);
       }
-
+    } on FirebaseAuthException catch (e) {
+      return Get.dialog(
+        AppAlertDialog(
+          title: "Login Failed",
+          message: FirebaseExceptions.getMessage(e.code),
+          type: AlertType.error,
+        ),
+      );
     } catch (e) {
       return Get.dialog(
         AppAlertDialog(
@@ -94,16 +103,9 @@ class AuthController extends GetxController {
       );
 
       if (user != null) {
-        AppSnackBar.success(
-          title: "Registration Success",
-          message: "You're all set! Your account is ready to use.",
-          context: Get.context!
-        );
-
         _userData.value = user;
-        Get.offAllNamed(AppRoutes.login);
+        Get.offNamed(AppRoutes.signUpEmailVerification);
       }
-
     } catch (e) {
       return Get.dialog(
         AppAlertDialog(
@@ -122,7 +124,6 @@ class AuthController extends GetxController {
     _isLoading.value = true;
     try {
       await _auth.sendPasswordResetEmail(email: email);
-
     } catch (e) {
       throw Exception(
         "Exception during send password rest email ${e.toString()}",

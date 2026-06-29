@@ -186,6 +186,7 @@ class _SignUpProfilePicViewState extends State<SignUpProfilePicView> {
       );
       return;
     }
-    Get.toNamed(AppRoutes.signUpBioDetails);
+
+    await _signUpController.setProfileImage();
   }
 }

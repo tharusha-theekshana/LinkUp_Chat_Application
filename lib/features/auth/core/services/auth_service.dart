@@ -37,7 +37,7 @@ class AuthService {
       }
       return null;
     } on FirebaseException catch (e) {
-      throw Exception(e.message.toString());
+      rethrow;
     }
   }
 
@@ -79,10 +79,39 @@ class AuthService {
           role: "user",
         );
 
+        // Send email verification link to user
+        await user.sendEmailVerification();
+
         await _firestoreService.createUser(user: userModel);
         return userModel;
       }
       return null;
+    } on FirebaseException catch (e) {
+      throw Exception(e.message.toString());
+    }
+  }
+
+  // Resend email verification
+  Future<void> resendVerificationEmail() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+      }
+    } on FirebaseException catch (e) {
+      throw Exception(e.message.toString());
+    }
+  }
+
+  // Check if email is verified (reload user first)
+  Future<bool> checkEmailVerified() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await user.reload();
+        return _auth.currentUser?.emailVerified ?? false;
+      }
+      return false;
     } on FirebaseException catch (e) {
       throw Exception(e.message.toString());
     }

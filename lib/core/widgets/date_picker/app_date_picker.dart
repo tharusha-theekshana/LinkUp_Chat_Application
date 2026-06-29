@@ -24,7 +24,7 @@ class AppDatePicker extends StatelessWidget {
     this.onDateSelected,
   });
 
-  static const Color _primaryColor = Color(0xFFD01245);
+  static const Color _primaryColor =AppTheme.primaryColor;
 
   String _formatDate(DateTime date) {
     final List<String> months = [
@@ -39,7 +39,7 @@ class AppDatePicker extends StatelessWidget {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1950),
       lastDate: DateTime.now(),
       initialEntryMode: DatePickerEntryMode.calendarOnly,
       initialDatePickerMode: DatePickerMode.day,
@@ -48,9 +48,8 @@ class AppDatePicker extends StatelessWidget {
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
               primary: _primaryColor,
-              onPrimary: Colors.white,
-              onSurface: Color(0xFF0F172A),
-              surface: Colors.white,
+              onPrimary: AppTheme.cardColor,
+              onSurface: AppTheme.textPrimaryColor,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(

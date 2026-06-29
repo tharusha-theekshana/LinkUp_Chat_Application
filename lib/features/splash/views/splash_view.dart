@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:link_up/routes/app_routes.dart';
+import 'package:link_up/core/widgets/scaffold/app_scaffold.dart';
+import 'package:link_up/features/splash/controllers/splash_controller.dart';
 
-import '../../../theme/app_theme.dart';
 import '../../../core/widgets/loader/app_loader.dart';
 import '../../../core/widgets/logo/app_logo.dart';
-import '../../auth/core/controllers/auth_controller.dart';
+import '../../../theme/app_theme.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -23,7 +23,7 @@ class _SplashViewState extends State<SplashView>
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
-  final _authController = Get.find<AuthController>();
+  final _splashController = Get.find<SplashController>();
 
   @override
   void initState() {
@@ -49,17 +49,7 @@ class _SplashViewState extends State<SplashView>
     );
 
     _controller.forward();
-    _checkAuthAndNavigate();
-  }
-
-  void _checkAuthAndNavigate() async {
-    await Future.delayed(Duration(seconds: 3));
-
-    if(_authController.isAuthenticated){
-      Get.offAllNamed(AppRoutes.profile);
-    }else{
-      Get.offAllNamed(AppRoutes.login);
-    }
+    _splashController.checkAuthAndNavigate();
   }
 
   @override
@@ -72,7 +62,8 @@ class _SplashViewState extends State<SplashView>
   Widget build(BuildContext context) {
     _deviceSize = MediaQuery.of(context).size;
 
-    return Scaffold(
+    return AppScaffold(
+      deviceSize: _deviceSize,
       body: SizedBox(
         height: _deviceSize.height,
         width: _deviceSize.width,
@@ -90,7 +81,7 @@ class _SplashViewState extends State<SplashView>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 40),
+              padding: const EdgeInsets.only(bottom: 10),
               child: Column(
                 children: [
                   AppLoader(),

@@ -1,10 +1,26 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:link_up/features/auth/core/data/entities/user_data_entity.dart';
+
+import '../../../../../core/enums/alert_type.dart';
+import '../../../../../core/widgets/alert_dialogs/app_alert_dialogs.dart';
+import '../../../../../routes/app_routes.dart';
+import '../../../core/controllers/auth_controller.dart';
+import '../../../../../core/services/firestore_service.dart';
+import '../../../core/services/auth_service.dart';
 
 class SignUpController extends GetxController {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirestoreService _firestoreService = FirestoreService();
+  final AuthController _authController = Get.find<AuthController>();
+  final AuthService _authService = AuthService();
+
   final ImagePicker _picker = ImagePicker();
+  XFile? image;
 
   final Rx<bool> _isLoading = Rx<bool>(false);
   final Rx<String> _fullName = Rx<String>("");
@@ -15,6 +31,12 @@ class SignUpController extends GetxController {
   final Rx<String> _bio = Rx<String>("");
   final Rx<String> _dateOfBirth = Rx<String>("");
   final Rx<File?> _profileImage = Rx<File?>(null);
+  final Rx<bool> _isEmailVerified = Rx<bool>(false);
+
+  final Rx<int> _resendCountdown = Rx<int>(60);
+  final Rx<bool> _canResend = Rx<bool>(false);
+  Timer? _countdownTimer;
+  Timer? _verificationCheckTimer;
 
   bool get isLoading => _isLoading.value;
   String get fullName => _fullName.value;
@@ -25,6 +47,10 @@ class SignUpController extends GetxController {
   File? get profileImage => _profileImage.value;
   String get bio => _bio.value;
   String get dateOfBirth => _dateOfBirth.value;
+  bool get isEmailVerified => _isEmailVerified.value;
+  bool get canResend => _canResend.value;
+  int get resendCountdown =>
+      _resendCountdown.value;
 
   // Store basic details in memory
   Future<void> setBasicData({
@@ -35,16 +61,40 @@ class SignUpController extends GetxController {
   }) async {
     _isLoading.value = true;
     try {
-      await Future.delayed(Duration(seconds: 1));
+      final isExists = await _isEmailAlreadyInUse(email: email);
+
+      if(isExists){
+        Get.dialog(
+          AppAlertDialog(
+            title: "Email Already In Use",
+            message: "An account with this email already exists. Please log in instead.",
+            type: AlertType.error,
+          ),
+        );
+        return;
+      }
 
       _fullName.value = fullName;
-      _userName.value = userName;
+      _userName.value = userName.toLowerCase();
       _email.value = email;
       _mobile.value = mobileNumber;
+
+      // Navigate
+      Get.toNamed(AppRoutes.signUpSetPassword);
+
     } catch (e) {
       throw Exception("Exception during set basic data ${e.toString()}");
     } finally {
       _isLoading.value = false;
+    }
+  }
+
+  // Check email already exists in database
+  Future<bool> _isEmailAlreadyInUse({required String email}) async {
+    try {
+      return await _firestoreService.isEmailAlreadyExists(email: email);
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 
@@ -56,6 +106,10 @@ class SignUpController extends GetxController {
     try {
       await Future.delayed(Duration(seconds: 1));
       _password.value = password;
+
+      // Navigate
+      Get.toNamed(AppRoutes.signUpProfilePicDetails);
+
     } catch (e) {
       throw Exception("Exception during set password ${e.toString()}");
     } finally {
@@ -67,14 +121,12 @@ class SignUpController extends GetxController {
   Future<void> pickFromGallery() async {
     _isLoading.value = true;
     try {
-      final XFile? image = await _picker.pickImage(
+      image = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 80,
       );
+      _profileImage.value = File(image!.path);
 
-      if (image != null) {
-        setProfileImage(File(image.path));
-      }
     } catch (e) {
       throw Exception("Exception during set profile image ${e.toString()}");
     } finally {
@@ -86,14 +138,12 @@ class SignUpController extends GetxController {
   Future<void> takePhoto() async {
     _isLoading.value = true;
     try {
-      final XFile? image = await _picker.pickImage(
+      image = await _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 80,
       );
+      _profileImage.value = File(image!.path);
 
-      if (image != null) {
-        setProfileImage(File(image.path));
-      }
     } catch (e) {
       throw Exception("Exception during set profile image ${e.toString()}");
     } finally {
@@ -102,10 +152,12 @@ class SignUpController extends GetxController {
   }
 
   // Set profile image
-  Future<void> setProfileImage(File image) async {
+  Future<void> setProfileImage() async {
     _isLoading.value = true;
     try {
-      _profileImage.value = image;
+      _profileImage.value = File(image!.path);
+      Get.toNamed(AppRoutes.signUpBioDetails);
+
     } catch (e) {
       throw Exception("Exception during set profile image ${e.toString()}");
     } finally {
@@ -132,5 +184,87 @@ class SignUpController extends GetxController {
     } finally {
       _isLoading.value = false;
     }
+  }
+
+  // Store password in memory
+  Future<void> sendRegisterDataToAuth({
+    required UserDataEntity userData
+  }) async {
+    _isLoading.value = true;
+    try {
+      await _authController.registerWithEmailAndPassword(userData: userData);
+
+    } catch (e) {
+      throw Exception("Exception during set password ${e.toString()}");
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
+  // Resend verification email
+  Future<void> resendVerificationEmail() async {
+    try {
+      await _authService.resendVerificationEmail();
+      startResendTimer();
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
+
+  // Manual button check
+  Future<bool> checkEmailVerified() async {
+    _isLoading.value = true;
+    try {
+      final verified = await _authService.checkEmailVerified();
+      if (verified) {
+        _verificationCheckTimer?.cancel();
+        _countdownTimer?.cancel();
+        await Future.delayed(const Duration(seconds: 10));
+        Get.offAllNamed(AppRoutes.landing);
+      } else {
+        _isLoading.value = false;
+      }
+      return verified;
+    } catch (e) {
+      _isLoading.value = false;
+      return false;
+    }
+  }
+
+  // Resend timer start with listener
+  void startResendTimer() {
+    _resendCountdown.value = 60;
+    _canResend.value = false;
+
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (_resendCountdown.value <= 1) {
+        t.cancel();
+        _canResend.value = true;
+      } else {
+        _resendCountdown.value--;
+      }
+    });
+
+    // Listener every 3 seconds in the background
+    _verificationCheckTimer?.cancel();
+    _verificationCheckTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
+      final verified = await _authService.checkEmailVerified();
+
+      if (verified) {
+        _verificationCheckTimer?.cancel();
+        _countdownTimer?.cancel();
+        _isLoading.value = true;
+        await Future.delayed(const Duration(seconds: 10));
+        Get.offAllNamed(AppRoutes.login);
+      }
+    });
+  }
+
+  @override
+  void onClose() {
+    _countdownTimer?.cancel();
+    _verificationCheckTimer?.cancel();
+    super.onClose();
   }
 }

@@ -248,16 +248,6 @@ class _SignUpBioDetailsViewState extends State<SignUpBioDetailsView> {
         dob: _dobController.text,
       );
 
-      await _registerUser();
-
-    } else {
-      Get.log("Form is not valid");
-    }
-  }
-
-  // Register user function
-  Future<void> _registerUser() async {
-    try {
       UserDataEntity userDataEntity = UserDataEntity(
           fullName: _signUpController.fullName,
           userName: _signUpController.userName,
@@ -268,10 +258,10 @@ class _SignUpBioDetailsViewState extends State<SignUpBioDetailsView> {
           bio: _signUpController.bio,
           dob: _signUpController.dateOfBirth);
 
-      await _authController.registerWithEmailAndPassword(userData: userDataEntity);
+      await _signUpController.sendRegisterDataToAuth(userData: userDataEntity);
 
-    } catch (e) {
-      Get.log("Exception during call register user function ${e.toString()}");
+    } else {
+      Get.log("Form is not valid");
     }
   }
 

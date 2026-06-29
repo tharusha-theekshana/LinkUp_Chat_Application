@@ -112,6 +112,9 @@ class _SignUpBasicDetailsViewState extends State<SignUpBasicDetailsView> {
               if (value == null || value.isEmpty) {
                 return 'User name is required';
               }
+              if (value.contains(' ')) {
+                return 'Username cannot contain spaces';
+              }
               return null;
             },
           ),
@@ -175,7 +178,6 @@ class _SignUpBasicDetailsViewState extends State<SignUpBasicDetailsView> {
         mobileNumber: _mobileNumberController.text,
       );
 
-      Get.toNamed(AppRoutes.signUpSetPassword);
     } else {
       Get.log("Form is not valid");
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:link_up/core/widgets/scaffold/app_scaffold.dart';
 
 import '../../../../../routes/app_routes.dart';
 import '../../../../../theme/app_theme.dart';
@@ -35,22 +36,17 @@ class _SignInViewState extends State<SignInView> {
   Widget build(BuildContext context) {
     _deviceSize = MediaQuery.of(context).size;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
+    return AppScaffold(
+      deviceSize: _deviceSize,
       body: SafeArea(
-        child: Container(
-          width: _deviceSize.width,
-          height: _deviceSize.height,
-          padding: EdgeInsets.symmetric(horizontal: _deviceSize.width * 0.03),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _topWidgets(),
-              Expanded(child: _bodyWidgets()),
-              _footerWidgets(),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _topWidgets(),
+            Expanded(child: _bodyWidgets()),
+            _footerWidgets(),
+          ],
         ),
       ),
     );

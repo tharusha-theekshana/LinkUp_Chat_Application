@@ -22,6 +22,22 @@ class FirestoreService {
   final String _messages = 'messages';
   final String _notifications = 'notifications';
 
+  // Check if email already exists in Firestore
+  Future<bool> isEmailAlreadyExists({required String email}) async {
+    try {
+      QuerySnapshot query = await _firestore
+          .collection(_userCollection)
+          .where('email', isEqualTo: email.toLowerCase().trim())
+          .limit(1)
+          .get();
+
+      return query.docs.isNotEmpty;
+
+    } on FirebaseException catch (e) {
+      rethrow;
+    }
+  }
+
   // Create user
   Future<void> createUser({required UserModel user}) async {
     try {
