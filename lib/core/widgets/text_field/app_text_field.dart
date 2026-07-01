@@ -110,7 +110,7 @@ class _AppTextFieldState extends State<AppTextField> {
             hintText: widget.hintText,
             hintStyle: Theme.of(
               context,
-            ).textTheme.bodySmall!.copyWith(color: AppTheme.textSecondaryColor),
+            ).textTheme.displaySmall!.copyWith(color: AppTheme.textSecondaryColor),
             prefixIcon: widget.prefixIcon != null
                 ? Icon(
                     widget.prefixIcon,

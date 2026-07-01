@@ -34,7 +34,6 @@ class AppScaffold extends StatelessWidget {
           child: Padding(
             padding: padding ??
                 EdgeInsets.only(
-                  top: deviceSize.height * 0.02,
                   left: deviceSize.width * 0.03,
                   right: deviceSize.width * 0.03,
                   bottom: deviceSize.height * 0.02

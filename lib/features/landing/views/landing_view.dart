@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:link_up/core/widgets/scaffold/app_scaffold.dart';
 import 'package:link_up/features/auth/core/controllers/auth_controller.dart';
+import 'package:link_up/features/find_friends/views/find_friends_view.dart';
 import 'package:link_up/features/profile/views/profile_view.dart';
 
 import '../../../theme/app_theme.dart';
@@ -18,12 +19,12 @@ class _LandingViewState extends State<LandingView> {
   late Size _deviceSize;
   int _currentIndex = 0;
 
-  final _controller = Get.find<AuthController>();
+  final List<String> _titles = ['Chats', 'Friends', 'Find Friends', 'Profile'];
 
   final List<Widget> _pages = [
     const ChatPage(),
     const FriendsPage(),
-    const FindFriendsPage(),
+    const FindFriendsView(),
     const ProfileView(),
   ];
 
@@ -33,12 +34,18 @@ class _LandingViewState extends State<LandingView> {
 
     return AppScaffold(
       deviceSize: _deviceSize,
-      extendBody: true,
-      body: SafeArea(
-        top: true,
-        bottom: false,
-        child: IndexedStack(index: _currentIndex, children: _pages),
+      appBar: AppBar(
+        title: Text(
+          _titles[_currentIndex],
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 24,
+          ),
+        ),
+        centerTitle: false,
       ),
+      extendBody: true,
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
@@ -60,12 +67,4 @@ class FriendsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Center(child: Text('Friends'));
-}
-
-class FindFriendsPage extends StatelessWidget {
-  const FindFriendsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) =>
-      const Center(child: Text('Find Friends'));
 }

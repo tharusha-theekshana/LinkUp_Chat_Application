@@ -174,7 +174,7 @@ class _SignUpEmailVerificationState extends State<SignUpEmailVerification> {
           await _signUpController.resendVerificationEmail();
           AppSnackBar.success(
             title: "Email resent",
-            message: "Check your inbox for a new link.",
+            message: "We've sent a new verification link to your email address.",
             context: Get.context!,
           );
         }

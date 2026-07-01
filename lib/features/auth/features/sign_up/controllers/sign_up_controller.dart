@@ -8,6 +8,7 @@ import 'package:link_up/features/auth/core/data/entities/user_data_entity.dart';
 
 import '../../../../../core/enums/alert_type.dart';
 import '../../../../../core/widgets/alert_dialogs/app_alert_dialogs.dart';
+import '../../../../../core/widgets/snack_bar/app_snack_bar.dart';
 import '../../../../../routes/app_routes.dart';
 import '../../../core/controllers/auth_controller.dart';
 import '../../../../../core/services/firestore_service.dart';
@@ -67,7 +68,7 @@ class SignUpController extends GetxController {
         Get.dialog(
           AppAlertDialog(
             title: "Email Already In Use",
-            message: "An account with this email already exists. Please log in instead.",
+            message: "We found an existing account associated with this email address. Please log in to continue.",
             type: AlertType.error,
           ),
         );
@@ -219,7 +220,7 @@ class SignUpController extends GetxController {
       if (verified) {
         _verificationCheckTimer?.cancel();
         _countdownTimer?.cancel();
-        await Future.delayed(const Duration(seconds: 10));
+        await Future.delayed(const Duration(seconds: 3));
         Get.offAllNamed(AppRoutes.landing);
       } else {
         _isLoading.value = false;
@@ -254,9 +255,19 @@ class SignUpController extends GetxController {
       if (verified) {
         _verificationCheckTimer?.cancel();
         _countdownTimer?.cancel();
+
         _isLoading.value = true;
-        await Future.delayed(const Duration(seconds: 10));
-        Get.offAllNamed(AppRoutes.login);
+
+        AppSnackBar.success(
+          title: "Email Verified",
+          message: "Your email has been verified successfully. Let's get you connected.",
+          context: Get.context!,
+        );
+
+        await Future.delayed(const Duration(seconds: 2));
+
+        _isLoading.value = false;
+        Get.offAllNamed(AppRoutes.landing);
       }
     });
   }

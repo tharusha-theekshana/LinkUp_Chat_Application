@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-class ProfileBindings extends Bindings {
+class FindFriendsBindings extends Bindings {
   @override
   void dependencies() {
   }

@@ -35,21 +35,19 @@ class FindFriendsController extends GetxController {
 
   // Getters
   Rx<bool> get isLoading => _isLoading;
-
-  Rx<String> get searchQuery => _searchQuery;
-
+  String get searchQuery => _searchQuery.value;
   RxList<UserModel> get users => _users;
-
   RxList<UserModel> get filteredUsers => _filteredUsers;
-
   RxMap<String, UserRelationshipStatus> get userRelationShips =>
       _userRelationShips;
-
   RxList<FriendRequestModel> get sentRequests => _sentRequests;
-
   RxList<FriendRequestModel> get receiveRequests => _receiveRequests;
-
   RxList<FriendshipModel> get friendships => _friendships;
+
+
+  set searchQuery(String value) {
+    _searchQuery.value = value;
+  }
 
   @override
   void onInit() {
@@ -64,14 +62,13 @@ class FindFriendsController extends GetxController {
     );
   }
 
+  // Load all users
   void _loadUsers() async {
     _users.bindStream(_firestoreService.getAllUsersStream());
 
-    ever(_users, List<UserModel> userList) {
+    ever(users, List<UserModel> userList) {
       final currentUserId = _authController.user!.uid;
-      final otherUsers = userList
-          .where((user) => user.id != currentUserId)
-          .toList();
+      final otherUsers = userList.where((user) => user.id != currentUserId).toList();
 
       if (searchQuery.isEmpty) {
         _filteredUsers.value = otherUsers;
@@ -81,6 +78,7 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Load relationships
   void _loadRelationShips() async {
     final currentUserId = _authController.user?.uid;
 
@@ -158,6 +156,7 @@ class FindFriendsController extends GetxController {
     return UserRelationshipStatus.none;
   }
 
+  // Filter user by name
   void _filterUsers() {
     final currentUserId = _authController.user?.uid;
     final query = _searchQuery.value.toLowerCase();
@@ -170,22 +169,23 @@ class FindFriendsController extends GetxController {
       _filteredUsers.value = _users
           .where(
             (user) =>
-                user.id != currentUserId &&
-                (user.fullName.toLowerCase().contains(query) ||
-                    user.email.toLowerCase().contains(query)),
-          )
+        user.id != currentUserId &&
+            user.fullName.toLowerCase().contains(query),
+      )
           .toList();
     }
   }
 
-  void _updateSearchQuery({required String query}) {
+  void updateSearchQuery({required String query}) {
     _searchQuery.value = query;
+    _filterUsers();
   }
 
   void _clearSearch() {
     _searchQuery.value = '';
   }
 
+  // Send friend request
   Future<void> sendFriendRequest({required UserModel user}) async {
     _isLoading.value = true;
     try {
@@ -201,7 +201,6 @@ class FindFriendsController extends GetxController {
         );
 
         _userRelationShips[user.id] = UserRelationshipStatus.friendRequestSent;
-
         await _firestoreService.sendFriendRequest(request: request);
       }
     } catch (e) {
@@ -212,6 +211,7 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Cancel friend request
   Future<void> cancelFriendRequest({required UserModel user}) async {
     _isLoading.value = true;
     try {
@@ -328,21 +328,6 @@ class FindFriendsController extends GetxController {
 
   UserRelationshipStatus getUserRelationshipStatus({required String userId}) {
     return _userRelationShips[userId] ?? UserRelationshipStatus.none;
-  }
-
-  String getRelationshipButtonText({required UserRelationshipStatus status}) {
-    switch (status) {
-      case UserRelationshipStatus.none:
-        return 'Add Friend';
-      case UserRelationshipStatus.friendRequestSent:
-        return 'Request Sent';
-      case UserRelationshipStatus.friendRequestReceived:
-        return 'Accept Request';
-      case UserRelationshipStatus.friends:
-        return 'Message';
-      case UserRelationshipStatus.blocked:
-        return 'Blocked';
-    }
   }
 
   IconData getRelationshipButtonIcon({required UserRelationshipStatus status}) {

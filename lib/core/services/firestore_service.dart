@@ -139,6 +139,7 @@ class FirestoreService {
         );
   }
 
+  // Send friend request
   Future<void> sendFriendRequest({required FriendRequestModel request}) async {
     try {
       await _firestore
@@ -147,14 +148,14 @@ class FirestoreService {
           .set(request.toMap());
 
       String notificationId =
-          'friend reqest ${request.senderId} ${request.receiverId} ${DateTime.now().millisecondsSinceEpoch}';
+          'friend request ${request.senderId} ${request.receiverId} ${DateTime.now().millisecondsSinceEpoch}';
 
       await createNotification(
         NotificationModel(
           id: notificationId,
           userId: request.receiverId,
-          title: "Hui",
-          body: "Hai",
+          title: "Friend Request sent",
+          body: "Friend request sent ${request.senderId} to ${request.receiverId}",
           type: NotificationType.friendRequest,
           data: {'senderId': request.senderId, 'requestId': request.id},
           createdAt: DateTime.now(),
@@ -165,6 +166,7 @@ class FirestoreService {
     }
   }
 
+  // Cancel friend request
   Future<void> cancelFriendRequest({required String requestId}) async {
     try {
       DocumentSnapshot requestDoc = await _firestore
@@ -328,7 +330,7 @@ class FirestoreService {
       List<String> userIds = [user1Id, user2Id];
       userIds.sort();
 
-      String friendShipId = '${userIds[0]} _ ${userIds[1]}';
+      String friendShipId = '${userIds[0]}_${userIds[1]}';
 
       FriendshipModel friendship = FriendshipModel(
         id: friendShipId,
@@ -852,6 +854,7 @@ class FirestoreService {
     }
   }
 
+  // Delete notification friend request
   Future<void> deleteNotificationsByTypeAndUser({
     required String userId,
     required NotificationType type,
@@ -870,8 +873,8 @@ class FirestoreService {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
         if (data['data'] != null &&
-            (data['data']['senderId' == relatedUserId] ||
-                data['data']['userId' == relatedUserId])) {
+            (data['data']['senderId'] == relatedUserId ||
+                data['data']['userId'] == relatedUserId)) {
           batch.delete(doc.reference);
         }
       }

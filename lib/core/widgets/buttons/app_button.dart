@@ -15,6 +15,7 @@ class AppButton extends StatelessWidget {
   final Color? textColor;
   final double height;
   final TextStyle? labelStyle;
+  final double borderRadius;
 
   const AppButton({
     super.key,
@@ -29,6 +30,7 @@ class AppButton extends StatelessWidget {
     this.textColor,
     this.height = 50,
     this.labelStyle,
+    this.borderRadius = 12
   });
 
   static const Color _primaryColor = AppTheme.primaryColor;
@@ -81,7 +83,7 @@ class AppButton extends StatelessWidget {
         disabledForegroundColor: Colors.white.withOpacity(0.8),
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
       AppButtonType.outlined => OutlinedButton.styleFrom(
@@ -92,13 +94,13 @@ class AppButton extends StatelessWidget {
           width: 1,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
       AppButtonType.text => TextButton.styleFrom(
         foregroundColor: textColor ?? _primaryColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
     };
