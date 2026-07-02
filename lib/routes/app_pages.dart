@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:link_up/features/friends/views/friends_view.dart';
 
 import 'app_routes.dart';
 import '../features/splash/views/splash_view.dart';
@@ -16,7 +17,6 @@ import '../features/auth/features/forgot_password/bindings/forgot_password_bindi
 import '../features/profile/views/profile_view.dart';
 import '../features/profile/bindings/profile_bindings.dart';
 import '../features/find_friends/views/find_friends_view.dart';
-import '../features/find_friends/bindings/find_friends_bindings.dart';
 
 class AppPages {
 
@@ -42,7 +42,10 @@ class AppPages {
     GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordView(), binding: ForgotPasswordBindings()),
 
     // Find Friends
-    GetPage(name: AppRoutes.findFriends, page: () => FindFriendsView(), binding: FindFriendsBindings()),
+    GetPage(name: AppRoutes.friends, page: () => FriendsView(), binding: null),
+
+    // Find Friends
+    GetPage(name: AppRoutes.findFriends, page: () => FindFriendsView(), binding: null),
 
     // Profile
     GetPage(name: AppRoutes.profile, page: () => ProfileView(), binding: ProfileBindings()),

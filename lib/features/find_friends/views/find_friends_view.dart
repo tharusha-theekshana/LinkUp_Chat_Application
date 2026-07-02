@@ -144,6 +144,8 @@ class _FindFriendsViewState extends State<FindFriendsView> {
       userId: user.id,
     );
 
+    print(status);
+
     switch (status) {
       case UserRelationshipStatus.none:
         return Row(

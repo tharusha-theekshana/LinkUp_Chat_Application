@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import 'package:link_up/core/widgets/scaffold/app_scaffold.dart';
 import 'package:link_up/features/auth/core/controllers/auth_controller.dart';
 import 'package:link_up/features/find_friends/views/find_friends_view.dart';
+import 'package:link_up/features/friends/views/friends_view.dart';
 import 'package:link_up/features/profile/views/profile_view.dart';
 
+import '../../../core/enums/request_tab.dart';
 import '../../../theme/app_theme.dart';
+import '../../friends/controllers/friends_controller.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class LandingView extends StatefulWidget {
@@ -23,10 +26,12 @@ class _LandingViewState extends State<LandingView> {
 
   final List<Widget> _pages = [
     const ChatPage(),
-    const FriendsPage(),
+    const FriendsView(),
     const FindFriendsView(),
     const ProfileView(),
   ];
+
+  final _friendsController = Get.find<FriendsController>();
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +53,19 @@ class _LandingViewState extends State<LandingView> {
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: _onNavTap,
         deviceSize: _deviceSize,
       ),
     );
+  }
+
+  void _onNavTap(int index) {
+    if (_currentIndex == 1 && index != 1) {
+      _friendsController.setSelectedTab = RequestTab.friends;
+      _friendsController.clearSearch();
+    }
+
+    setState(() => _currentIndex = index);
   }
 }
 
@@ -60,11 +74,4 @@ class ChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Center(child: Text('Chat'));
-}
-
-class FriendsPage extends StatelessWidget {
-  const FriendsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) => const Center(child: Text('Friends'));
 }

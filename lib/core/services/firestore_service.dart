@@ -348,6 +348,7 @@ class FirestoreService {
     }
   }
 
+  // Remove friendship
   Future<void> removeFriendShip({
     required String user1Id,
     required String user2Id,
@@ -356,19 +357,20 @@ class FirestoreService {
       List<String> userIds = [user1Id, user2Id];
       userIds.sort();
 
-      String friendShipId = '${userIds[0]} _ ${userIds[1]}';
+      String friendShipId = '${userIds[0]}_${userIds[1]}';
 
       await _firestore.collection(_friendShips).doc(friendShipId).delete();
 
       NotificationModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: user2Id,
-        title: "FREmove",
-        body: "Hai",
+        title: "Friend removed",
+        body: "$user1Id removed you as a friend",
         type: NotificationType.friendRemoved,
         data: {'userId': user1Id},
         createdAt: DateTime.now(),
       );
+
     } catch (e) {
       throw Exception("Exception during remove friendship ${e.toString()}");
     }

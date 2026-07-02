@@ -96,7 +96,6 @@ class FindFriendsController extends GetxController {
       ever(_sentRequests, (_) => _updateAllRelationshipStatus());
       ever(_receiveRequests, (_) => _updateAllRelationshipStatus());
       ever(_friendships, (_) => _updateAllRelationshipStatus());
-
       ever(_users, (_) => _updateAllRelationshipStatus());
     }
   }
@@ -104,7 +103,7 @@ class FindFriendsController extends GetxController {
   void _updateAllRelationshipStatus() {
     final currentUserId = _authController.user?.uid;
 
-    if (currentUserId != null) {
+    if (currentUserId == null) {
       return;
     }
 
