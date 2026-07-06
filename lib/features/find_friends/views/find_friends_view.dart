@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:link_up/core/enums/user_relationship_status.dart';
-import 'package:link_up/core/widgets/buttons/app_button.dart';
-import 'package:link_up/core/widgets/buttons/small_app_button.dart';
-import 'package:link_up/core/widgets/loader/app_loader.dart';
-import 'package:link_up/core/widgets/text_field/app_text_field.dart';
-import 'package:link_up/features/auth/core/data/models/user_model.dart';
 
 import '../../../theme/app_theme.dart';
+import '../../../core/enums/user_relationship_status.dart';
+import '../../../core/widgets/avatars/user_pic_avatar.dart';
+import '../../../core/widgets/buttons/app_button.dart';
+import '../../../core/widgets/buttons/small_app_button.dart';
+import '../../../core/widgets/loader/app_loader.dart';
+import '../../../core/widgets/text_field/app_text_field.dart';
+import '../../auth/core/data/models/user_model.dart';
 import '../controllers/find_friends_controller.dart';
 
 class FindFriendsView extends StatefulWidget {
@@ -19,7 +20,7 @@ class FindFriendsView extends StatefulWidget {
 
 class _FindFriendsViewState extends State<FindFriendsView> {
   late Size _deviceSize;
-  final TextEditingController _searchTextController = TextEditingController();
+  final _searchTextController = TextEditingController();
 
   // Controller
   final _findFriendsController = Get.find<FindFriendsController>();
@@ -50,7 +51,8 @@ class _FindFriendsViewState extends State<FindFriendsView> {
       label: "",
       hintText: "Search Friends",
       prefixIcon: Icons.search,
-      onChanged: (value) => _findFriendsController.updateSearchQuery(query: value)
+      onChanged: (value) =>
+          _findFriendsController.updateSearchQuery(query: value),
     );
   }
 
@@ -64,45 +66,48 @@ class _FindFriendsViewState extends State<FindFriendsView> {
 
       final users = _findFriendsController.filteredUsers;
 
-      if (users.isEmpty) {
-        return const Center(
-          child: Text('No users found', style: TextStyle(color: Colors.grey)),
-        );
-      }
-
       return ListView.separated(
         itemCount: users.length,
-        separatorBuilder: (_,_){
+        separatorBuilder: (_, _) {
           return Container();
         },
         itemBuilder: (context, index) {
           final user = users[index];
-          return _userDataTile(user);
+          return _userDataTile(userData: user);
         },
       );
     });
   }
 
   // User data tile
-  Widget _userDataTile(UserModel user) {
+  Widget _userDataTile({required UserModel userData}) {
     return Obx(() {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 25,right: 12,left: 12),
+        padding: const EdgeInsets.only(left: 5, right: 5, bottom: 20),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildAvatar(user),
-            const SizedBox(width: 12),
+            UserPicAvatar(user: userData, radius: 28),
+            const SizedBox(width: 15),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    user.fullName,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    userData.fullName,
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _findFriendsController.getLastSeenText(user: userData),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 6),
-                  _relationShipButtons(user: user),
+                  _relationShipButtons(user: userData),
                 ],
               ),
             ),
@@ -112,39 +117,11 @@ class _FindFriendsViewState extends State<FindFriendsView> {
     });
   }
 
-  // Avatar area
-  Widget _buildAvatar(UserModel user) {
-    return Stack(
-      children: [
-        CircleAvatar(
-          radius: 30,
-          backgroundColor: AppTheme.textSecondaryColor.withAlpha(150),
-          backgroundImage: NetworkImage(user.photoUrl),
-        ),
-        if (user.isOnline)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: AppTheme.successColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
+  // Relationship status buttons
   Widget _relationShipButtons({required UserModel user}) {
     final status = _findFriendsController.getUserRelationshipStatus(
       userId: user.id,
     );
-
-    print(status);
 
     switch (status) {
       case UserRelationshipStatus.none:
@@ -162,7 +139,8 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               child: SmallAppButton(
                 label: "Add Friend",
                 backgroundColor: AppTheme.secondaryColor.withAlpha(200),
-                onPressed: () => _findFriendsController.sendFriendRequest(user: user),
+                onPressed: () =>
+                    _findFriendsController.sendFriendRequest(user: user),
               ),
             ),
           ],
@@ -183,7 +161,8 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               child: SmallAppButton(
                 label: "Cancel Request",
                 backgroundColor: AppTheme.primaryColor.withAlpha(200),
-                onPressed: () => _findFriendsController.cancelFriendRequest(user: user),
+                onPressed: () =>
+                    _findFriendsController.cancelFriendRequest(user: user),
               ),
             ),
           ],

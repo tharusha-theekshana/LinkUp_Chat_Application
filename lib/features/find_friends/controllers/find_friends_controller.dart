@@ -63,19 +63,12 @@ class FindFriendsController extends GetxController {
   }
 
   // Load all users
-  void _loadUsers() async {
+  void _loadUsers() {
     _users.bindStream(_firestoreService.getAllUsersStream());
 
-    ever(users, List<UserModel> userList) {
-      final currentUserId = _authController.user!.uid;
-      final otherUsers = userList.where((user) => user.id != currentUserId).toList();
-
-      if (searchQuery.isEmpty) {
-        _filteredUsers.value = otherUsers;
-      } else {
-        _filterUsers();
-      }
-    }
+    ever<List<UserModel>>(_users, (userList) {
+      _filterUsers();
+    });
   }
 
   // Load relationships
@@ -394,11 +387,11 @@ class FindFriendsController extends GetxController {
       if (difference.inMinutes < 1) {
         return 'Just now';
       } else if (difference.inHours < 1) {
-        return 'Last seen ${difference.inMinutes} m ago';
+        return 'Last seen ${difference.inMinutes}m ago';
       } else if (difference.inDays < 1) {
-        return 'Last seen ${difference.inHours} h ago';
+        return 'Last seen ${difference.inHours}h ago';
       } else if (difference.inDays < 7) {
-        return 'Last seen ${difference.inDays} d ago';
+        return 'Last seen ${difference.inDays}d ago';
       } else {
         return 'Last seen ${user.lastSeen.day}/${user.lastSeen.month}/${user.lastSeen.year}';
       }

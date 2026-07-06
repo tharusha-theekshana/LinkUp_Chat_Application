@@ -185,12 +185,44 @@ class _FriendsViewState extends State<FriendsView> {
   }
 
   Widget _receivedRequestsView() {
-    return Center(
-      child: Text(
-        "📥 Friend Requests Received",
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-    );
+    return Obx(() {
+      if (_friendsController.receivedFriendRequests.isEmpty) {
+        return EmptyStateView(
+          imageAsset: 'assets/images/icons/no_request_icon.png',
+          title: "No Requests",
+          subtitle: "Incoming requests from other users will be shown here.",
+
+        );
+      }
+
+      if (_friendsController.filteredReceivedFriendRequests.isEmpty) {
+        return const EmptyStateView(
+          imageAsset: 'assets/images/icons/empty_data.png',
+          title: "Nothing Found",
+          subtitle: "We couldn't find anyone matching your search.",
+        );
+      }
+
+      return ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 2),
+        itemCount: _friendsController.filteredReceivedFriendRequests.length,
+        itemBuilder: (context, index) {
+          final friendRequest =
+          _friendsController.filteredReceivedFriendRequests[index];
+          final user = _friendsController.getUser(
+            userId: friendRequest.receiverId,
+          );
+
+          return SentRequestDataRow(
+            user: user,
+            request: friendRequest,
+            onCancel: () => _findFriendsController.cancelFriendRequest(user: user),
+            getRequestTimeText: (createdAt) =>
+                _friendsController.getRequestTimeText(createdAt: createdAt),
+          );
+        },
+      );
+    });
   }
 
   // Sent requests list view

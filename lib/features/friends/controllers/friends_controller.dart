@@ -18,7 +18,9 @@ class FriendsController extends GetxController {
 
   final Rx<bool> _isLoading = Rx<bool>(false);
   final Rx<String> _searchQuery = Rx<String>("");
+
   bool get isLoading => _isLoading.value;
+
   String get searchQuery => _searchQuery.value;
 
   // Form controller
@@ -26,33 +28,39 @@ class FriendsController extends GetxController {
 
   // Catch selected tab
   final Rxn<RequestTab> _selectedTab = Rxn<RequestTab>(RequestTab.friends);
-  RequestTab get selectedTab => _selectedTab.value!;
 
+  RequestTab get selectedTab => _selectedTab.value!;
 
   final RxList<FriendshipModel> _friendShips = RxList<FriendshipModel>([]);
   final RxList<UserModel> _allFriends = RxList<UserModel>([]);
   final RxList<UserModel> _filteredFriends = RxList<UserModel>([]);
 
+  // For received friend requests
   final RxList<FriendRequestModel> _receivedFriendRequests =
       RxList<FriendRequestModel>([]);
+  final RxList<FriendRequestModel> _filteredReceivedFriendRequests =
+  RxList<FriendRequestModel>([]);
+
+  List<FriendRequestModel> get friendRequests =>
+      _receivedFriendRequests;
+  RxList<FriendRequestModel> get filteredReceivedFriendRequests =>
+      _filteredReceivedFriendRequests;
 
   // For sent friend request
   final RxList<FriendRequestModel> _sentFriendRequests =
       RxList<FriendRequestModel>([]);
   final RxList<FriendRequestModel> _filteredSentFriendRequests =
       RxList<FriendRequestModel>([]);
+
   RxList<FriendRequestModel> get sentFriendRequests => _sentFriendRequests;
-  RxList<FriendRequestModel> get filteredSentFriendRequests => _filteredSentFriendRequests;
+  RxList<FriendRequestModel> get filteredSentFriendRequests =>
+      _filteredSentFriendRequests;
 
   RxMap<String, UserModel> get users => _users;
 
   final RxMap<String, UserModel> _users = RxMap<String, UserModel>({});
 
-  List<FriendRequestModel> get friendRequests =>
-      _receivedFriendRequests.toList();
-
   StreamSubscription? _friendshipsSubscriptions;
-
 
   List<FriendshipModel> get friendShips => _friendShips.toList();
 
@@ -134,7 +142,7 @@ class FriendsController extends GetxController {
 
     if (currentUserId != null) {
       _receivedFriendRequests.bindStream(
-        _firestoreService.getSentFriendRequestStream(userId: currentUserId),
+        _firestoreService.getFriendRequestsStream(userId: currentUserId),
       );
 
       _sentFriendRequests.bindStream(
@@ -166,10 +174,17 @@ class FriendsController extends GetxController {
   }
 
   // Update search query and update data list
-  void updateSearchQuery({required String query, required RequestTab requestTab}) {
+  void updateSearchQuery({
+    required String query,
+    required RequestTab requestTab,
+  }) {
     _searchQuery.value = query;
 
-    if(requestTab == RequestTab.sendRequests){
+    if(requestTab == RequestTab.receivedRequests){
+      _filterReceivedRequests();
+    }
+
+    if (requestTab == RequestTab.sendRequests) {
       _filterSentRequests();
     }
 
@@ -182,6 +197,7 @@ class FriendsController extends GetxController {
     _searchQuery.value = '';
 
     _filterSentRequests();
+    _filterReceivedRequests();
   }
 
   // Filter sent requests by name
@@ -195,6 +211,25 @@ class FriendsController extends GetxController {
 
     _filteredSentFriendRequests.assignAll(
       _sentFriendRequests.where((request) {
+        final user = _users[request.receiverId];
+        if (user == null) return false;
+
+        return user.fullName.toLowerCase().contains(query);
+      }).toList(),
+    );
+  }
+
+  // Filter received requests by name
+  void _filterReceivedRequests() {
+    final query = _searchQuery.value.toLowerCase();
+
+    if (query.isEmpty) {
+      _filteredReceivedFriendRequests.assignAll(_receivedFriendRequests);
+      return;
+    }
+
+    _filteredReceivedFriendRequests.assignAll(
+      _receivedFriendRequests.where((request) {
         final user = _users[request.receiverId];
         if (user == null) return false;
 
