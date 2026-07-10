@@ -37,7 +37,7 @@ class PillButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        width: 100,
+        width: (deviceSize.width - 50)/ 3,
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 15),
         decoration: BoxDecoration(

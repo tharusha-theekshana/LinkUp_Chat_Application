@@ -131,6 +131,8 @@ class FriendsController extends GetxController {
       }
 
       _allFriends.value = friends;
+      _filterFriends();
+
     } catch (e) {
       throw Exception("Exception during load friends details ${e.toString()}");
     }

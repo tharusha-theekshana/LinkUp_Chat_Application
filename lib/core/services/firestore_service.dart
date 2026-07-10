@@ -8,6 +8,7 @@ import 'package:link_up/core/data/models/notification_model.dart';
 import 'package:link_up/core/enums/friend_request_status.dart';
 import 'package:link_up/core/enums/notification_type.dart';
 import 'package:link_up/features/auth/core/data/models/user_model.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instanceFor(
@@ -200,6 +201,7 @@ class FirestoreService {
     required FriendRequestStatus status,
   }) async {
     try {
+      print("hai");
       await _firestore
           .collection(_friendRequestCollection)
           .doc(requestId)
@@ -289,13 +291,17 @@ class FirestoreService {
     return _firestore
         .collection(_friendRequestCollection)
         .where('senderId', isEqualTo: userId)
+        .where(
+      'status',
+      isEqualTo: FriendRequestStatus.pending.name,
+    )
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
-          (snapshots) => snapshots.docs
-              .map((e) => FriendRequestModel.fromMap(e.data()))
-              .toList(),
-        );
+          (snapshot) => snapshot.docs
+          .map((e) => FriendRequestModel.fromMap(e.data()))
+          .toList(),
+    );
   }
 
   Future<FriendRequestModel?> getFriendRequest({
@@ -414,31 +420,39 @@ class FirestoreService {
     }
   }
 
-  Stream<List<FriendshipModel>> getFriendsStream({required String userId}) {
-    return _firestore
+  Stream<List<FriendshipModel>> getFriendsStream({
+    required String userId,
+  }) {
+
+    final stream1 = _firestore
         .collection(_friendShips)
         .where('user1Id', isEqualTo: userId)
-        .snapshots()
-        .asyncMap((snapshot1) async {
-          QuerySnapshot snapshot2 = await _firestore
-              .collection(_friendShips)
-              .where('user2Id', isEqualTo: userId)
-              .get();
+        .snapshots();
 
-          List<FriendshipModel> friendShips = [];
+    final stream2 = _firestore
+        .collection(_friendShips)
+        .where('user2Id', isEqualTo: userId)
+        .snapshots();
 
-          for (var doc in snapshot1.docs) {
-            friendShips.add(FriendshipModel.fromMap(doc.data()));
-          }
+    return Rx.combineLatest2(
+      stream1,
+      stream2,
+          (
+          QuerySnapshot<Map<String, dynamic>> s1,
+          QuerySnapshot<Map<String, dynamic>> s2,
+          ) {
 
-          for (var doc in snapshot2.docs) {
-            friendShips.add(
-              FriendshipModel.fromMap(doc.data() as Map<String, dynamic>),
-            );
-          }
+        final friendships = [
+          ...s1.docs,
+          ...s2.docs,
+        ];
 
-          return friendShips.where((fShip) => !fShip.isBlocked).toList();
-        });
+        return friendships
+            .map((e) => FriendshipModel.fromMap(e.data()))
+            .where((f) => !f.isBlocked)
+            .toList();
+      },
+    );
   }
 
   Future<FriendshipModel?> getFriendShips({

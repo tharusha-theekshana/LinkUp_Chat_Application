@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:link_up/core/enums/request_tab.dart';
-import 'package:link_up/features/find_friends/controllers/find_friends_controller.dart';
-import 'package:link_up/features/friends/controllers/friends_controller.dart';
-import 'package:link_up/features/friends/widgets/pill_button.dart';
 
-import '../../../core/widgets/buttons/small_app_button.dart';
+import '../../../core/enums/request_tab.dart';
 import '../../../core/widgets/text_field/app_text_field.dart';
 import '../../../core/widgets/views/empty_state_view.dart';
+import '../controllers/friends_controller.dart';
+import '../widgets/pill_button.dart';
+import '../widgets/received_request_data_row.dart';
 import '../widgets/sent_request_data_row.dart';
+import '../../find_friends/controllers/find_friends_controller.dart';
 
 class FriendsView extends StatefulWidget {
   const FriendsView({super.key});
@@ -126,7 +126,7 @@ class _FriendsViewState extends State<FriendsView> {
           break;
 
         case RequestTab.receivedRequests:
-          count = 0;
+          count = _friendsController.filteredReceivedFriendRequests.length;
           label = "Request";
           break;
 
@@ -184,6 +184,7 @@ class _FriendsViewState extends State<FriendsView> {
     });
   }
 
+  // Received friend requests
   Widget _receivedRequestsView() {
     return Obx(() {
       if (_friendsController.receivedFriendRequests.isEmpty) {
@@ -210,13 +211,14 @@ class _FriendsViewState extends State<FriendsView> {
           final friendRequest =
           _friendsController.filteredReceivedFriendRequests[index];
           final user = _friendsController.getUser(
-            userId: friendRequest.receiverId,
+            userId: friendRequest.senderId,
           );
 
-          return SentRequestDataRow(
+          return ReceivedRequestDataRow(
             user: user,
             request: friendRequest,
-            onCancel: () => _findFriendsController.cancelFriendRequest(user: user),
+            onCancel: () => _friendsController.removeFriendRequest(request: friendRequest),
+            onConfirm: () => _friendsController.acceptFriendRequest(request: friendRequest),
             getRequestTimeText: (createdAt) =>
                 _friendsController.getRequestTimeText(createdAt: createdAt),
           );

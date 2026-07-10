@@ -1,25 +1,28 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/request/request.dart';
-import 'package:link_up/core/data/models/friend_request_model.dart';
-import 'package:link_up/core/data/models/friendship_model.dart';
-import 'package:link_up/core/enums/friend_request_status.dart';
-import 'package:link_up/core/enums/user_relationship_status.dart';
-import 'package:link_up/core/services/firestore_service.dart';
-import 'package:link_up/features/auth/core/controllers/auth_controller.dart';
-import 'package:link_up/features/auth/core/data/models/user_model.dart';
-import 'package:link_up/routes/app_routes.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../routes/app_routes.dart';
+import '../../../core/enums/friend_request_status.dart';
+import '../../../core/enums/user_relationship_status.dart';
+import '../../../core/data/models/friend_request_model.dart';
+import '../../../core/data/models/friendship_model.dart';
+import '../../auth/core/data/models/user_model.dart';
+import '../../auth/core/controllers/auth_controller.dart';
+import '../../../core/services/firestore_service.dart';
+
 class FindFriendsController extends GetxController {
-  final FirestoreService _firestoreService = FirestoreService();
-  final AuthController _authController = Get.find<AuthController>();
+  final _firestoreService = Get.find<FirestoreService>();
+  final _authController = Get.find<AuthController>();
   final Uuid _uuid = Uuid();
+
+  // Form controller
+  final searchTextController = TextEditingController();
 
   final Rx<bool> _isLoading = Rx<bool>(false);
   final Rx<String> _searchQuery = Rx<String>("");
 
+  // For users
   final RxList<UserModel> _users = RxList<UserModel>([]);
   final RxList<UserModel> _filteredUsers = RxList<UserModel>([]);
 
@@ -44,7 +47,6 @@ class FindFriendsController extends GetxController {
   RxList<FriendRequestModel> get receiveRequests => _receiveRequests;
   RxList<FriendshipModel> get friendships => _friendships;
 
-
   set searchQuery(String value) {
     _searchQuery.value = value;
   }
@@ -60,6 +62,20 @@ class FindFriendsController extends GetxController {
       (_) => _filterUsers(),
       time: Duration(microseconds: 300),
     );
+  }
+
+  // Update search query
+  void updateSearchQuery({required String query}) {
+    _searchQuery.value = query;
+    _filterUsers();
+  }
+
+  // Clear search query
+  void clearSearch() {
+    searchTextController.clear();
+    _searchQuery.value = '';
+
+    _filterUsers();
   }
 
   // Load all users
@@ -93,6 +109,7 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Update relationship status
   void _updateAllRelationshipStatus() {
     final currentUserId = _authController.user?.uid;
 
@@ -108,6 +125,7 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Check relationship status
   UserRelationshipStatus _calculateRelationshipStatus({
     required String userId,
   }) {
@@ -168,15 +186,6 @@ class FindFriendsController extends GetxController {
     }
   }
 
-  void updateSearchQuery({required String query}) {
-    _searchQuery.value = query;
-    _filterUsers();
-  }
-
-  void _clearSearch() {
-    _searchQuery.value = '';
-  }
-
   // Send friend request
   Future<void> sendFriendRequest({required UserModel user}) async {
     _isLoading.value = true;
@@ -229,6 +238,7 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Accept friend request
   Future<void> acceptFriendRequest({required UserModel user}) async {
     _isLoading.value = true;
     try {
@@ -257,6 +267,7 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Decline friend request
   Future<void> declineFriendRequest({required UserModel user}) async {
     _isLoading.value = true;
     try {
@@ -287,6 +298,7 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Start chat
   Future<void> startChat({required UserModel user}) async {
     _isLoading.value = true;
     try {
@@ -304,13 +316,11 @@ class FindFriendsController extends GetxController {
           userId2: user.id,
         );
 
-        if (chatId != null) {
-          Get.toNamed(
-            AppRoutes.changePassword,
-            arguments: {'chatId': chatId, 'otherUser': user},
-          );
-        }
-      }
+        Get.toNamed(
+          AppRoutes.changePassword,
+          arguments: {'chatId': chatId, 'otherUser': user},
+        );
+            }
     } catch (e) {
       throw Exception("Exception during start chat ${e.toString()}");
     } finally {
@@ -318,65 +328,12 @@ class FindFriendsController extends GetxController {
     }
   }
 
+  // Get status of relationship
   UserRelationshipStatus getUserRelationshipStatus({required String userId}) {
     return _userRelationShips[userId] ?? UserRelationshipStatus.none;
   }
 
-  IconData getRelationshipButtonIcon({required UserRelationshipStatus status}) {
-    switch (status) {
-      case UserRelationshipStatus.none:
-        return Icons.person_add;
-      case UserRelationshipStatus.friendRequestSent:
-        return Icons.access_time;
-      case UserRelationshipStatus.friendRequestReceived:
-        return Icons.check;
-      case UserRelationshipStatus.friends:
-        return Icons.chat_bubble_outline_outlined;
-      case UserRelationshipStatus.blocked:
-        return Icons.block;
-    }
-  }
-
-  Color getRelationshipButtonColor({required UserRelationshipStatus status}) {
-    switch (status) {
-      case UserRelationshipStatus.none:
-        return Colors.blue;
-      case UserRelationshipStatus.friendRequestSent:
-        return Colors.red;
-      case UserRelationshipStatus.friendRequestReceived:
-        return Colors.yellow;
-      case UserRelationshipStatus.friends:
-        return Colors.green;
-      case UserRelationshipStatus.blocked:
-        return Colors.deepOrange;
-    }
-  }
-
-  void handleRelationshipButtonPress({required UserModel user}) {
-    final status = getUserRelationshipStatus(userId: user.id);
-
-    switch (status) {
-      case UserRelationshipStatus.none:
-        sendFriendRequest(user: user);
-        break;
-
-      case UserRelationshipStatus.friendRequestSent:
-        cancelFriendRequest(user: user);
-        break;
-
-      case UserRelationshipStatus.friendRequestReceived:
-        acceptFriendRequest(user: user);
-        break;
-
-      case UserRelationshipStatus.friends:
-        startChat(user: user);
-        break;
-
-      case UserRelationshipStatus.blocked:
-        break;
-    }
-  }
-
+  // Calculate last seen
   String getLastSeenText({required UserModel user}) {
     if (user.isOnline) {
       return 'Online';

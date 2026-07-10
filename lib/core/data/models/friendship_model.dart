@@ -31,7 +31,9 @@ class FriendshipModel {
       id: map['id'] ?? '',
       user1Id: map['user1Id'] ?? '',
       user2Id: map['user2Id'] ?? '',
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
+      createdAt: map['createdAt'] is String
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
       isBlocked: map['isBlocked'] ?? false,
       blockedBy: map['blockedBy'],
     );

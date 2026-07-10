@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:link_up/core/widgets/scaffold/app_scaffold.dart';
 import 'package:link_up/features/auth/core/controllers/auth_controller.dart';
+import 'package:link_up/features/find_friends/controllers/find_friends_controller.dart';
 import 'package:link_up/features/find_friends/views/find_friends_view.dart';
 import 'package:link_up/features/friends/views/friends_view.dart';
 import 'package:link_up/features/profile/views/profile_view.dart';
@@ -31,7 +32,10 @@ class _LandingViewState extends State<LandingView> {
     const ProfileView(),
   ];
 
+  // Controllers
   final _friendsController = Get.find<FriendsController>();
+  final _findFriendsController = Get.find<FindFriendsController>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +67,10 @@ class _LandingViewState extends State<LandingView> {
     if (_currentIndex == 1 && index != 1) {
       _friendsController.setSelectedTab = RequestTab.friends;
       _friendsController.clearSearch();
+    }
+
+    if (_currentIndex == 2 && index != 2) {
+      _findFriendsController.clearSearch();
     }
 
     setState(() => _currentIndex = index);

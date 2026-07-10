@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:link_up/core/widgets/bottom_sheets/user_profile_bottom_sheet.dart';
 
 import '../../../theme/app_theme.dart';
 import '../../../core/enums/user_relationship_status.dart';
@@ -20,14 +21,13 @@ class FindFriendsView extends StatefulWidget {
 
 class _FindFriendsViewState extends State<FindFriendsView> {
   late Size _deviceSize;
-  final _searchTextController = TextEditingController();
 
   // Controller
   final _findFriendsController = Get.find<FindFriendsController>();
 
   @override
   void dispose() {
-    _searchTextController.dispose();
+    _findFriendsController.searchTextController.dispose();
     super.dispose();
   }
 
@@ -47,7 +47,7 @@ class _FindFriendsViewState extends State<FindFriendsView> {
   // Search Bar
   Widget _searchBar() {
     return AppTextField(
-      controller: _searchTextController,
+      controller: _findFriendsController.searchTextController,
       label: "",
       hintText: "Search Friends",
       prefixIcon: Icons.search,
@@ -131,7 +131,7 @@ class _FindFriendsViewState extends State<FindFriendsView> {
               child: SmallAppButton(
                 label: "View Profile",
                 backgroundColor: AppTheme.textSecondaryColor.withAlpha(200),
-                onPressed: () {},
+                onPressed: () => Get.bottomSheet(UserProfileBottomSheet(user: user)),
               ),
             ),
             SizedBox(width: 8),

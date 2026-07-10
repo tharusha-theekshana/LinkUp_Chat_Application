@@ -58,6 +58,8 @@ dependencies:
 
   # A Flutter plugin for picking images from the image library, and taking new pictures with the camera.
   image_picker: ^1.2.2
+  rxdart_flutter: ^0.0.2
+  intl: ^0.20.3
 
 
 dev_dependencies:
