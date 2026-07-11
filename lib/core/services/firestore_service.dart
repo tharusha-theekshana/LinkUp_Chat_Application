@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get_core/get_core.dart';
 import 'package:link_up/core/data/models/chat_model.dart';
 import 'package:link_up/core/data/models/friend_request_model.dart';
 import 'package:link_up/core/data/models/friendship_model.dart';
@@ -23,7 +24,7 @@ class FirestoreService {
   final String _messages = 'messages';
   final String _notifications = 'notifications';
 
-  // Check if email already exists in Firestore
+  // Check if email already exists with user
   Future<bool> isEmailAlreadyExists({required String email}) async {
     try {
       QuerySnapshot query = await _firestore
@@ -35,6 +36,7 @@ class FirestoreService {
       return query.docs.isNotEmpty;
 
     } on FirebaseException catch (e) {
+      Get.log("Exception during check email exist ${e.message}");
       rethrow;
     }
   }

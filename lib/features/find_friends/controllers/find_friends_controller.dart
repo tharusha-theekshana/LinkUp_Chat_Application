@@ -54,9 +54,10 @@ class FindFriendsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadUsers();
+    _loadAllUsers();
     _loadRelationShips();
 
+    // Wait short time for update filter users
     debounce(
       _sentRequests,
       (_) => _filterUsers(),
@@ -79,7 +80,7 @@ class FindFriendsController extends GetxController {
   }
 
   // Load all users
-  void _loadUsers() {
+  void _loadAllUsers() {
     _users.bindStream(_firestoreService.getAllUsersStream());
 
     ever<List<UserModel>>(_users, (userList) {
@@ -90,6 +91,7 @@ class FindFriendsController extends GetxController {
   // Load relationships
   void _loadRelationShips() async {
     final currentUserId = _authController.user?.uid;
+    print(currentUserId);
 
     if (currentUserId != null) {
       _sentRequests.bindStream(

@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:link_up/core/exceptions/firebase_exceptions.dart';
 
+import '../../../../core/exceptions/app_exception.dart';
 import '../data/entities/user_data_entity.dart';
 import '../data/models/user_model.dart';
 import '../../../../core/services/firebase_storage_service.dart';
@@ -86,8 +88,14 @@ class AuthService {
         return userModel;
       }
       return null;
+    } on FirebaseAuthException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+
     } on FirebaseException catch (e) {
-      throw Exception(e.message.toString());
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+
+    } catch (e) {
+      throw AppException(message: 'We ran into an issue processing your request. Please try again.');
     }
   }
 
@@ -98,6 +106,7 @@ class AuthService {
       if (user != null && !user.emailVerified) {
         await user.sendEmailVerification();
       }
+
     } on FirebaseException catch (e) {
       throw Exception(e.message.toString());
     }
@@ -107,10 +116,12 @@ class AuthService {
   Future<bool> checkEmailVerified() async {
     try {
       User? user = _auth.currentUser;
+
       if (user != null) {
         await user.reload();
         return _auth.currentUser?.emailVerified ?? false;
       }
+
       return false;
     } on FirebaseException catch (e) {
       throw Exception(e.message.toString());

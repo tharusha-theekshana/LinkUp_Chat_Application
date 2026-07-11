@@ -146,5 +146,4 @@ class _SignUpSetPasswordViewState extends State<SignUpSetPasswordView> {
       Get.log("Form is not valid");
     }
   }
-
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../routes/app_routes.dart';
 import '../../../../../theme/app_theme.dart';
 import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/scaffold/app_scaffold.dart';
@@ -104,7 +103,7 @@ class _SignUpProfilePicViewState extends State<SignUpProfilePicView> {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.4),
+                  color: AppTheme.textSecondaryColor.withAlpha(100),
                 ),
                 child: const Center(
                   child: SizedBox(

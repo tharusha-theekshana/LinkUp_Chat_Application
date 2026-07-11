@@ -1,14 +1,12 @@
-import 'dart:math';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:link_up/core/exceptions/firebase_exceptions.dart';
 
+import '../../../../core/enums/alert_type.dart';
+import '../../../../core/widgets/alert_dialogs/app_alert_dialogs.dart';
 import '../../../../routes/app_routes.dart';
 import '../data/entities/user_data_entity.dart';
 import '../data/models/user_model.dart';
-import '../../../../core/enums/alert_type.dart';
-import '../../../../core/widgets/alert_dialogs/app_alert_dialogs.dart';
 import '../services/auth_service.dart';
 
 class AuthController extends GetxController {
@@ -22,10 +20,15 @@ class AuthController extends GetxController {
 
   bool get isAuthenticated => _user.value != null;
   final Rx<bool> _isInitialized = Rx<bool>(false);
+
   User? get user => _user.value;
+
   UserModel? get userData => _userData.value;
+
   bool get isLoading => _isLoading.value;
+
   String get error => _error.value;
+
   bool get isInitialized => _isInitialized.value;
 
   @override
@@ -60,35 +63,14 @@ class AuthController extends GetxController {
     required String email,
     required String password,
   }) async {
-    _isLoading.value = true;
-    try {
-      UserModel? user = await _authService.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    UserModel? user = await _authService.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-      if (user != null) {
-        _userData.value = user;
-        Get.offAllNamed(AppRoutes.landing);
-      }
-    } on FirebaseAuthException catch (e) {
-      return Get.dialog(
-        AppAlertDialog(
-          title: "Login Failed",
-          message: FirebaseExceptions.getMessage(e.code),
-          type: AlertType.error,
-        ),
-      );
-    } catch (e) {
-      return Get.dialog(
-        AppAlertDialog(
-          title: "Login Failed",
-          message: e.toString().replaceAll('Exception: ', ''),
-          type: AlertType.error,
-        ),
-      );
-    } finally {
-      _isLoading.value = false;
+    if (user != null) {
+      _userData.value = user;
+      Get.offAllNamed(AppRoutes.landing);
     }
   }
 
@@ -96,41 +78,28 @@ class AuthController extends GetxController {
   Future<void> registerWithEmailAndPassword({
     required UserDataEntity userData,
   }) async {
-    _isLoading.value = true;
-    try {
-      UserModel? user = await _authService.registerWithEmailAndPassword(
-        userData: userData,
-      );
+    UserModel? user = await _authService.registerWithEmailAndPassword(
+      userData: userData,
+    );
 
-      if (user != null) {
-        _userData.value = user;
-        Get.offNamed(AppRoutes.signUpEmailVerification);
-      }
-    } catch (e) {
-      return Get.dialog(
-        AppAlertDialog(
-          title: "Registration Failed",
-          message: e.toString().replaceAll('Exception: ', ''),
-          type: AlertType.error,
-        ),
-      );
-    } finally {
-      _isLoading.value = false;
+    if (user != null) {
+      _userData.value = user;
     }
+  }
+
+  // Resend verification email
+  Future<void> resendVerificationEmail() async {
+    await _authService.resendVerificationEmail();
+  }
+
+  // Check if email is verified (reload user first)
+  Future<bool> checkEmailVerified() async {
+    return await _authService.checkEmailVerified();
   }
 
   // Forgot password send password rest email
   Future<void> sendPasswordResetEmail({required String email}) async {
-    _isLoading.value = true;
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-    } catch (e) {
-      throw Exception(
-        "Exception during send password rest email ${e.toString()}",
-      );
-    } finally {
-      _isLoading.value = false;
-    }
+    await _auth.sendPasswordResetEmail(email: email);
   }
 
   // Sign out with firebase

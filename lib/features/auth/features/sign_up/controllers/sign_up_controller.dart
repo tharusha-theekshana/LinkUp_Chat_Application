@@ -1,21 +1,22 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:link_up/features/auth/core/data/entities/user_data_entity.dart';
 
+import '../../../../../routes/app_routes.dart';
+import '../../../../../core/utils/app_error_handler.dart';
+import '../../../../../core/utils/app_messages.dart';
 import '../../../../../core/enums/alert_type.dart';
+import '../../../../../core/exceptions/app_exception.dart';
 import '../../../../../core/widgets/alert_dialogs/app_alert_dialogs.dart';
 import '../../../../../core/widgets/snack_bar/app_snack_bar.dart';
-import '../../../../../routes/app_routes.dart';
+import '../../../core/data/entities/user_data_entity.dart';
 import '../../../core/controllers/auth_controller.dart';
 import '../../../../../core/services/firestore_service.dart';
 import '../../../core/services/auth_service.dart';
 
 class SignUpController extends GetxController {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirestoreService _firestoreService = FirestoreService();
   final AuthController _authController = Get.find<AuthController>();
   final AuthService _authService = AuthService();
@@ -39,19 +40,30 @@ class SignUpController extends GetxController {
   Timer? _countdownTimer;
   Timer? _verificationCheckTimer;
 
+  // Getters
   bool get isLoading => _isLoading.value;
+
   String get fullName => _fullName.value;
+
   String get userName => _userName.value;
+
   String get email => _email.value;
+
   String get mobile => _mobile.value;
+
   String get password => _password.value;
+
   File? get profileImage => _profileImage.value;
+
   String get bio => _bio.value;
+
   String get dateOfBirth => _dateOfBirth.value;
+
   bool get isEmailVerified => _isEmailVerified.value;
+
   bool get canResend => _canResend.value;
-  int get resendCountdown =>
-      _resendCountdown.value;
+
+  int get resendCountdown => _resendCountdown.value;
 
   // Store basic details in memory
   Future<void> setBasicData({
@@ -64,11 +76,12 @@ class SignUpController extends GetxController {
     try {
       final isExists = await _isEmailAlreadyInUse(email: email);
 
-      if(isExists){
+      if (isExists) {
         Get.dialog(
           AppAlertDialog(
-            title: "Email Already In Use",
-            message: "We found an existing account associated with this email address. Please log in to continue.",
+            title: AppMessages.emailAlreadyInUse,
+            message:
+                "We found an existing account associated with this email address. Please log in to continue.",
             type: AlertType.error,
           ),
         );
@@ -82,9 +95,11 @@ class SignUpController extends GetxController {
 
       // Navigate
       Get.toNamed(AppRoutes.signUpSetPassword);
-
     } catch (e) {
-      throw Exception("Exception during set basic data ${e.toString()}");
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -92,17 +107,18 @@ class SignUpController extends GetxController {
 
   // Check email already exists in database
   Future<bool> _isEmailAlreadyInUse({required String email}) async {
+    _isLoading.value = true;
     try {
       return await _firestoreService.isEmailAlreadyExists(email: email);
     } catch (e) {
       throw Exception(e.toString());
+    } finally {
+      _isLoading.value = false;
     }
   }
 
   // Store password in memory
-  Future<void> setPassword({
-    required String password
-  }) async {
+  Future<void> setPassword({required String password}) async {
     _isLoading.value = true;
     try {
       await Future.delayed(Duration(seconds: 1));
@@ -110,9 +126,11 @@ class SignUpController extends GetxController {
 
       // Navigate
       Get.toNamed(AppRoutes.signUpProfilePicDetails);
-
     } catch (e) {
-      throw Exception("Exception during set password ${e.toString()}");
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -127,9 +145,11 @@ class SignUpController extends GetxController {
         imageQuality: 80,
       );
       _profileImage.value = File(image!.path);
-
     } catch (e) {
-      throw Exception("Exception during set profile image ${e.toString()}");
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -144,9 +164,11 @@ class SignUpController extends GetxController {
         imageQuality: 80,
       );
       _profileImage.value = File(image!.path);
-
     } catch (e) {
-      throw Exception("Exception during set profile image ${e.toString()}");
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -158,9 +180,11 @@ class SignUpController extends GetxController {
     try {
       _profileImage.value = File(image!.path);
       Get.toNamed(AppRoutes.signUpBioDetails);
-
     } catch (e) {
-      throw Exception("Exception during set profile image ${e.toString()}");
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -175,28 +199,62 @@ class SignUpController extends GetxController {
   Future<void> setBioData({
     required String bio,
     required String dob,
+    required selectedDate,
   }) async {
     _isLoading.value = true;
     try {
+      if (!_isAgeValid(selectedDate)) {
+        return Get.dialog(
+          AppAlertDialog(
+            title: AppMessages.ageRestriction,
+            message:
+                "You must be at least 13 years old to create a LinkUp account.",
+            type: AlertType.restriction,
+            buttonText: "Got It",
+          ),
+        );
+      }
+
       _bio.value = bio;
       _dateOfBirth.value = dob;
+
+      // Call register functionality
+      await sendRegisterDataToAuth();
     } catch (e) {
-      throw Exception("Exception during set bio data ${e.toString()}");
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
     } finally {
       _isLoading.value = false;
     }
   }
 
   // Store password in memory
-  Future<void> sendRegisterDataToAuth({
-    required UserDataEntity userData
-  }) async {
+  Future<void> sendRegisterDataToAuth() async {
     _isLoading.value = true;
     try {
-      await _authController.registerWithEmailAndPassword(userData: userData);
+      // Create model data
+      UserDataEntity userDataEntity = UserDataEntity(
+        fullName: fullName,
+        userName: userName,
+        email: email,
+        password: password,
+        mobile: mobile,
+        profilePic: profileImage!,
+        bio: bio,
+        dob: dateOfBirth,
+      );
 
-    } catch (e) {
-      throw Exception("Exception during set password ${e.toString()}");
+      await _authController.registerWithEmailAndPassword(
+        userData: userDataEntity,
+      );
+      Get.offNamed(AppRoutes.signUpEmailVerification);
+    } on AppException catch (e) {
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -204,16 +262,28 @@ class SignUpController extends GetxController {
 
   // Resend verification email
   Future<void> resendVerificationEmail() async {
+    _isLoading.value = true;
     try {
-      await _authService.resendVerificationEmail();
-      startResendTimer();
+      await _authController.resendVerificationEmail();
+      startEmailVerifyListener();
+
+      AppSnackBar.success(
+        title: "Email Resent",
+        message: "We've sent a new verification link to your email address.",
+        context: Get.context!,
+      );
     } catch (e) {
-      throw Exception(e.toString());
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
+    } finally {
+      _isLoading.value = false;
     }
   }
 
   // Manual button check
-  Future<bool> checkEmailVerified() async {
+  Future<void> checkEmailVerified() async {
     _isLoading.value = true;
     try {
       final verified = await _authService.checkEmailVerified();
@@ -223,17 +293,25 @@ class SignUpController extends GetxController {
         await Future.delayed(const Duration(seconds: 3));
         Get.offAllNamed(AppRoutes.landing);
       } else {
-        _isLoading.value = false;
+        AppSnackBar.error(
+          title: AppMessages.emailNotVerified,
+          message:
+              "Check your inbox and tap the verification link to continue.",
+          context: Get.context!,
+        );
       }
-      return verified;
     } catch (e) {
+      AppErrorHandler.showError(
+        error: e,
+        title: AppMessages.registrationFailed,
+      );
+    } finally {
       _isLoading.value = false;
-      return false;
     }
   }
 
   // Resend timer start with listener
-  void startResendTimer() {
+  void startEmailVerifyListener() {
     _resendCountdown.value = 60;
     _canResend.value = false;
 
@@ -249,8 +327,10 @@ class SignUpController extends GetxController {
 
     // Listener every 3 seconds in the background
     _verificationCheckTimer?.cancel();
-    _verificationCheckTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
-      final verified = await _authService.checkEmailVerified();
+    _verificationCheckTimer = Timer.periodic(const Duration(seconds: 3), (
+      _,
+    ) async {
+      final verified = await _authController.checkEmailVerified();
 
       if (verified) {
         _verificationCheckTimer?.cancel();
@@ -260,7 +340,8 @@ class SignUpController extends GetxController {
 
         AppSnackBar.success(
           title: "Email Verified",
-          message: "Your email has been verified successfully. Let's get you connected.",
+          message:
+              "Your email has been verified successfully. Let's get you connected.",
           context: Get.context!,
         );
 
@@ -270,6 +351,18 @@ class SignUpController extends GetxController {
         Get.offAllNamed(AppRoutes.landing);
       }
     });
+  }
+
+  // Returns true if the user is 13 or older
+  bool _isAgeValid(DateTime dob) {
+    final DateTime today = DateTime.now();
+    final DateTime thirteenYearsAgo = DateTime(
+      today.year - 13,
+      today.month,
+      today.day,
+    );
+    return dob.isBefore(thirteenYearsAgo) ||
+        dob.isAtSameMomentAs(thirteenYearsAgo);
   }
 
   @override

@@ -14,7 +14,7 @@ class AppAlertDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.message,
-    this.buttonText = 'OK',
+    this.buttonText = 'Close',
     this.onPressed,
     this.type = AlertType.error,
   });

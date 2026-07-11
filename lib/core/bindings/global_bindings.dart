@@ -12,9 +12,10 @@ class GlobalBindings extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<FirestoreService>(() => FirestoreService(),fenix: true);
+
     Get.lazyPut<AuthController>(() => AuthController(),fenix: true);
-    Get.lazyPut<ChatController>(() => ChatController());
     Get.lazyPut<NotificationController>(() => NotificationController());
+    Get.lazyPut<ChatController>(() => ChatController());
     Get.lazyPut<FriendsController>(() => FriendsController());
     Get.lazyPut<FindFriendsController>(() => FindFriendsController());
     Get.lazyPut<ProfileController>(() => ProfileController());

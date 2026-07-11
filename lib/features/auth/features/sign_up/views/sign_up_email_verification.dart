@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../../../../theme/app_theme.dart';
 import '../../../../../core/widgets/buttons/app_button.dart';
 import '../../../../../core/widgets/scaffold/app_scaffold.dart';
-import '../../../../../core/widgets/snack_bar/app_snack_bar.dart';
 import '../controllers/sign_up_controller.dart';
 
 class SignUpEmailVerification extends StatefulWidget {
@@ -24,7 +23,7 @@ class _SignUpEmailVerificationState extends State<SignUpEmailVerification> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _signUpController.startResendTimer();
+      _signUpController.startEmailVerifyListener();
     });
   }
 
@@ -129,9 +128,15 @@ class _SignUpEmailVerificationState extends State<SignUpEmailVerification> {
         children: [
           _stepRow(number: '1', text: 'Open your email inbox'),
           const SizedBox(height: 16),
-          _stepRow(number: '2', text: 'Locate the verification email from LinkUp'),
+          _stepRow(
+            number: '2',
+            text: 'Locate the verification email from LinkUp',
+          ),
           const SizedBox(height: 16),
-          _stepRow(number: '3', text: 'Tap the "Verify Email" button in the email'),
+          _stepRow(
+            number: '3',
+            text: 'Tap the "Verify Email" button in the email',
+          ),
           const SizedBox(height: 16),
           _stepRow(
             number: '4',
@@ -147,17 +152,7 @@ class _SignUpEmailVerificationState extends State<SignUpEmailVerification> {
       () => AppButton(
         label: "I've verified my email",
         isLoading: _signUpController.isLoading,
-        onPressed: () async {
-          final verified = await _signUpController.checkEmailVerified();
-
-          if (!verified) {
-            AppSnackBar.error(
-              title: "Not verified yet",
-              message: "Please click the link in your email first.",
-              context: Get.context!,
-            );
-          }
-        },
+        onPressed: () => _signUpController.checkEmailVerified(),
       ),
     );
   }
@@ -170,14 +165,7 @@ class _SignUpEmailVerificationState extends State<SignUpEmailVerification> {
 
       return GestureDetector(
         onTap: canResend
-            ? () async {
-          await _signUpController.resendVerificationEmail();
-          AppSnackBar.success(
-            title: "Email resent",
-            message: "We've sent a new verification link to your email address.",
-            context: Get.context!,
-          );
-        }
+            ? () => _signUpController.resendVerificationEmail()
             : null,
         child: Text(
           canResend ? 'Resend email' : 'Resend in ${countdown}s',

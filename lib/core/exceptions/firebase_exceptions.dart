@@ -14,7 +14,7 @@ class FirebaseExceptions {
       case 'too-many-requests':
         return 'Too many failed attempts. Please try again later.';
       case 'network-request-failed':
-        return 'Network error. Check your connection.';
+        return 'No internet connection detected. Please check your network and try again.';
       case 'email-already-in-use':
         return 'An account already exists with this email.';
       case 'weak-password':
