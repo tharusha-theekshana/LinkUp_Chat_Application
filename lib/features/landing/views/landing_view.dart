@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:link_up/core/widgets/scaffold/app_scaffold.dart';
 import 'package:link_up/features/auth/core/controllers/auth_controller.dart';
+import 'package:link_up/features/chats/views/chats_view.dart';
 import 'package:link_up/features/find_friends/controllers/find_friends_controller.dart';
 import 'package:link_up/features/find_friends/views/find_friends_view.dart';
 import 'package:link_up/features/friends/views/friends_view.dart';
@@ -26,7 +27,7 @@ class _LandingViewState extends State<LandingView> {
   final List<String> _titles = ['Chats', 'Friends', 'Find Friends', 'Profile'];
 
   final List<Widget> _pages = [
-    const ChatPage(),
+    const ChatsView(),
     const FriendsView(),
     const FindFriendsView(),
     const ProfileView(),
@@ -75,11 +76,4 @@ class _LandingViewState extends State<LandingView> {
 
     setState(() => _currentIndex = index);
   }
-}
-
-class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
-
-  @override
-  Widget build(BuildContext context) => const Center(child: Text('Chat'));
 }

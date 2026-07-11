@@ -16,8 +16,9 @@ class AppRoutes {
 
   static const String changePassword = '/auth/change-password';
 
-  // Find friends
-  static const String chat = '/chat';
+  // Chat
+  static const String chat = '/chats';
+  static const String individualChat = '/chats/chat-individual';
 
   // Find friends
   static const String friends = '/friends';
