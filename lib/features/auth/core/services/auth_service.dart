@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:link_up/core/exceptions/firebase_exceptions.dart';
 
 import '../../../../core/exceptions/app_exception.dart';
+import '../../../../core/exceptions/firebase_exceptions.dart';
+import '../../../../core/utils/app_messages.dart';
 import '../data/entities/user_data_entity.dart';
 import '../data/models/user_model.dart';
 import '../../../../core/services/firebase_storage_service.dart';
@@ -13,6 +14,7 @@ class AuthService {
   final FirebaseStorageService _storageService = FirebaseStorageService();
 
   User? get currentUser => _auth.currentUser;
+
   String? get currentUserId => _auth.currentUser?.uid;
 
   // Listen to auth state changes
@@ -38,14 +40,19 @@ class AuthService {
         return await _firestoreService.getUser(userId: user.uid);
       }
       return null;
+    } on FirebaseAuthException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } on FirebaseException catch (e) {
-      rethrow;
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } catch (e) {
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
   // Sign in with email and password
   Future<UserModel?> registerWithEmailAndPassword({
-    required UserDataEntity userData}) async {
+    required UserDataEntity userData,
+  }) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: userData.email,
@@ -90,12 +97,10 @@ class AuthService {
       return null;
     } on FirebaseAuthException catch (e) {
       throw AppException(message: FirebaseExceptions.getMessage(e.code));
-
     } on FirebaseException catch (e) {
       throw AppException(message: FirebaseExceptions.getMessage(e.code));
-
     } catch (e) {
-      throw AppException(message: 'We ran into an issue processing your request. Please try again.');
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -106,9 +111,12 @@ class AuthService {
       if (user != null && !user.emailVerified) {
         await user.sendEmailVerification();
       }
-
+    } on FirebaseAuthException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } on FirebaseException catch (e) {
-      throw Exception(e.message.toString());
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } catch (e) {
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -123,8 +131,12 @@ class AuthService {
       }
 
       return false;
+    } on FirebaseAuthException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } on FirebaseException catch (e) {
-      throw Exception(e.message.toString());
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } catch (e) {
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -132,8 +144,12 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } on FirebaseException catch (e) {
-      throw Exception(e.message.toString());
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } catch (e) {
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -147,8 +163,12 @@ class AuthService {
         );
       }
       await _auth.signOut();
+    } on FirebaseAuthException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } on FirebaseException catch (e) {
-      throw Exception(e.message.toString());
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } catch (e) {
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -160,8 +180,12 @@ class AuthService {
         await _firestoreService.deleteUser(userId: user.uid);
         await user.delete();
       }
-    }on FirebaseException catch (e) {
-      throw Exception(e.message.toString());
+    } on FirebaseAuthException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } catch (e) {
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 }

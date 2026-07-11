@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:link_up/core/utils/app_messages.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/widgets/snack_bar/app_snack_bar.dart';
 import '../../../routes/app_routes.dart';
 import '../../../core/enums/friend_request_status.dart';
 import '../../../core/enums/user_relationship_status.dart';
@@ -91,7 +93,6 @@ class FindFriendsController extends GetxController {
   // Load relationships
   void _loadRelationShips() async {
     final currentUserId = _authController.user?.uid;
-    print(currentUserId);
 
     if (currentUserId != null) {
       _sentRequests.bindStream(
@@ -208,7 +209,11 @@ class FindFriendsController extends GetxController {
       }
     } catch (e) {
       _userRelationShips[user.id] = UserRelationshipStatus.friendRequestSent;
-      throw Exception("Exception during send friend request ${e.toString()}");
+      AppSnackBar.error(
+        title: AppMessages.actionFailed,
+        message: "The friend request could not be sent at this time. Please try again later.",
+        context: Get.context!,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -234,7 +239,11 @@ class FindFriendsController extends GetxController {
       }
     } catch (e) {
       _userRelationShips[user.id] = UserRelationshipStatus.friendRequestSent;
-      throw Exception("Exception during cancel friend request ${e.toString()}");
+      AppSnackBar.error(
+        title: AppMessages.actionFailed,
+        message: "The friend request could not be cancel at this time. Please try again later.",
+        context: Get.context!,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -263,7 +272,11 @@ class FindFriendsController extends GetxController {
       }
     } catch (e) {
       _userRelationShips[user.id] = UserRelationshipStatus.friendRequestSent;
-      throw Exception("Exception during accept friend request ${e.toString()}");
+      AppSnackBar.error(
+        title: AppMessages.actionFailed,
+        message: "The friend request could not be accept at this time. Please try again later.",
+        context: Get.context!,
+      );
     } finally {
       _isLoading.value = false;
     }
@@ -292,8 +305,10 @@ class FindFriendsController extends GetxController {
       }
     } catch (e) {
       _userRelationShips[user.id] = UserRelationshipStatus.friendRequestSent;
-      throw Exception(
-        "Exception during decline friend request ${e.toString()}",
+      AppSnackBar.error(
+        title: AppMessages.actionFailed,
+        message: "The friend request could not be decline at this time. Please try again later.",
+        context: Get.context!,
       );
     } finally {
       _isLoading.value = false;
@@ -324,7 +339,11 @@ class FindFriendsController extends GetxController {
         );
             }
     } catch (e) {
-      throw Exception("Exception during start chat ${e.toString()}");
+      AppSnackBar.error(
+        title: AppMessages.actionFailed,
+        message: "Something went wrong while opening the chat. Please try again later.",
+        context: Get.context!,
+      );
     } finally {
       _isLoading.value = false;
     }

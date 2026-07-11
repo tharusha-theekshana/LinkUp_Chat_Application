@@ -14,12 +14,10 @@ import '../../../../../core/widgets/snack_bar/app_snack_bar.dart';
 import '../../../core/data/entities/user_data_entity.dart';
 import '../../../core/controllers/auth_controller.dart';
 import '../../../../../core/services/firestore_service.dart';
-import '../../../core/services/auth_service.dart';
 
 class SignUpController extends GetxController {
-  final FirestoreService _firestoreService = FirestoreService();
-  final AuthController _authController = Get.find<AuthController>();
-  final AuthService _authService = AuthService();
+  final _firestoreService = Get.find<FirestoreService>();
+  final _authController = Get.find<AuthController>();
 
   final ImagePicker _picker = ImagePicker();
   XFile? image;
@@ -42,27 +40,16 @@ class SignUpController extends GetxController {
 
   // Getters
   bool get isLoading => _isLoading.value;
-
   String get fullName => _fullName.value;
-
   String get userName => _userName.value;
-
   String get email => _email.value;
-
   String get mobile => _mobile.value;
-
   String get password => _password.value;
-
   File? get profileImage => _profileImage.value;
-
   String get bio => _bio.value;
-
   String get dateOfBirth => _dateOfBirth.value;
-
   bool get isEmailVerified => _isEmailVerified.value;
-
   bool get canResend => _canResend.value;
-
   int get resendCountdown => _resendCountdown.value;
 
   // Store basic details in memory
@@ -268,7 +255,7 @@ class SignUpController extends GetxController {
       startEmailVerifyListener();
 
       AppSnackBar.success(
-        title: "Email Resent",
+        title: AppMessages.emailResent,
         message: "We've sent a new verification link to your email address.",
         context: Get.context!,
       );
@@ -286,7 +273,8 @@ class SignUpController extends GetxController {
   Future<void> checkEmailVerified() async {
     _isLoading.value = true;
     try {
-      final verified = await _authService.checkEmailVerified();
+      final verified = await _authController.checkEmailVerified();
+
       if (verified) {
         _verificationCheckTimer?.cancel();
         _countdownTimer?.cancel();
@@ -339,10 +327,16 @@ class SignUpController extends GetxController {
         _isLoading.value = true;
 
         AppSnackBar.success(
-          title: "Email Verified",
+          title: AppMessages.emailVerified,
           message:
               "Your email has been verified successfully. Let's get you connected.",
           context: Get.context!,
+        );
+
+        // Update online status
+        await _firestoreService.updateUserOnlineStatus(
+          userId: _authController.user!.uid,
+          isOnline: true,
         );
 
         await Future.delayed(const Duration(seconds: 2));

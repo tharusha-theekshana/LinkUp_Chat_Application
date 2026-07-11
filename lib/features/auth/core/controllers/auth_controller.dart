@@ -1,9 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:link_up/core/exceptions/firebase_exceptions.dart';
 
-import '../../../../core/enums/alert_type.dart';
-import '../../../../core/widgets/alert_dialogs/app_alert_dialogs.dart';
 import '../../../../routes/app_routes.dart';
 import '../data/entities/user_data_entity.dart';
 import '../data/models/user_model.dart';

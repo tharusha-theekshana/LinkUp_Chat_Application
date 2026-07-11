@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:get/get_core/get_core.dart';
 import 'package:link_up/core/data/models/chat_model.dart';
 import 'package:link_up/core/data/models/friend_request_model.dart';
 import 'package:link_up/core/data/models/friendship_model.dart';
@@ -10,6 +10,10 @@ import 'package:link_up/core/enums/friend_request_status.dart';
 import 'package:link_up/core/enums/notification_type.dart';
 import 'package:link_up/features/auth/core/data/models/user_model.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../exceptions/app_exception.dart';
+import '../exceptions/firebase_exceptions.dart';
+import '../utils/app_messages.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instanceFor(
@@ -34,10 +38,10 @@ class FirestoreService {
           .get();
 
       return query.docs.isNotEmpty;
-
     } on FirebaseException catch (e) {
-      Get.log("Exception during check email exist ${e.message}");
-      rethrow;
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
+    } catch (e) {
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -48,8 +52,10 @@ class FirestoreService {
           .collection(_userCollection)
           .doc(user.id)
           .set(user.toMap());
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during create user ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -60,12 +66,15 @@ class FirestoreService {
           .collection(_userCollection)
           .doc(userId)
           .get();
+
       if (doc.exists) {
         return UserModel.fromMap(doc.data() as Map<String, dynamic>);
       }
       return null;
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during get user details ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -86,10 +95,10 @@ class FirestoreService {
           'lastSeen': DateTime.now().millisecondsSinceEpoch,
         });
       }
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception(
-        "Exception during update user online status ${e.toString()}",
-      );
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -104,8 +113,10 @@ class FirestoreService {
       if (doc.exists) {
         await _firestore.collection(_userCollection).doc(userId).delete();
       }
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during get user details ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -125,8 +136,10 @@ class FirestoreService {
           .collection(_userCollection)
           .doc(user.id)
           .update(user.toMap());
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during update user ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -158,14 +171,17 @@ class FirestoreService {
           id: notificationId,
           userId: request.receiverId,
           title: "Friend Request sent",
-          body: "Friend request sent ${request.senderId} to ${request.receiverId}",
+          body:
+              "Friend request sent ${request.senderId} to ${request.receiverId}",
           type: NotificationType.friendRequest,
           data: {'senderId': request.senderId, 'requestId': request.id},
           createdAt: DateTime.now(),
         ),
       );
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during send friend request ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -193,17 +209,19 @@ class FirestoreService {
           relatedUserId: request.senderId,
         );
       }
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during cancel friend request ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Respond to friend request ( Accept or decline )
   Future<void> respondToFriendRequest({
     required String requestId,
     required FriendRequestStatus status,
   }) async {
     try {
-      print("hai");
       await _firestore
           .collection(_friendRequestCollection)
           .doc(requestId)
@@ -266,14 +284,17 @@ class FirestoreService {
           );
         }
       }
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception(
-        "Exception during respond to friend request ${e.toString()}",
-      );
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
-  Stream<List<FriendRequestModel>> getFriendRequestsStream({required String userId}) {
+  // Get friend requests as stream
+  Stream<List<FriendRequestModel>> getFriendRequestsStream({
+    required String userId,
+  }) {
     return _firestore
         .collection(_friendRequestCollection)
         .where('receiverId', isEqualTo: userId)
@@ -287,25 +308,24 @@ class FirestoreService {
         );
   }
 
+  // Get sent friend requests as stream
   Stream<List<FriendRequestModel>> getSentFriendRequestStream({
     required String userId,
   }) {
     return _firestore
         .collection(_friendRequestCollection)
         .where('senderId', isEqualTo: userId)
-        .where(
-      'status',
-      isEqualTo: FriendRequestStatus.pending.name,
-    )
+        .where('status', isEqualTo: FriendRequestStatus.pending.name)
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-          .map((e) => FriendRequestModel.fromMap(e.data()))
-          .toList(),
-    );
+              .map((e) => FriendRequestModel.fromMap(e.data()))
+              .toList(),
+        );
   }
 
+  // Get friend request as future
   Future<FriendRequestModel?> getFriendRequest({
     required String senderId,
     required String receiverId,
@@ -325,11 +345,14 @@ class FirestoreService {
       }
 
       return null;
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during get friend request ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Create friendship
   Future<void> createFriendShip({
     required String user1Id,
     required String user2Id,
@@ -351,8 +374,10 @@ class FirestoreService {
           .collection(_friendShips)
           .doc(friendShipId)
           .set(friendship.toMap());
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during create friendship ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
@@ -378,12 +403,14 @@ class FirestoreService {
         data: {'userId': user1Id},
         createdAt: DateTime.now(),
       );
-
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during remove friendship ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Block friend or user
   Future<void> blockUser({
     required String blockerId,
     required String blockedId,
@@ -398,11 +425,14 @@ class FirestoreService {
         'isBlocked': true,
         'blockedBy': blockerId,
       });
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during block user ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Unblock friend or user
   Future<void> unBlockUser({
     required String unBlockerId,
     required String unBlockedId,
@@ -417,15 +447,15 @@ class FirestoreService {
         'isBlocked': false,
         'blockedBy': null,
       });
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during un block user ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
-  Stream<List<FriendshipModel>> getFriendsStream({
-    required String userId,
-  }) {
-
+  // Get all friendship as stream
+  Stream<List<FriendshipModel>> getFriendsStream({required String userId}) {
     final stream1 = _firestore
         .collection(_friendShips)
         .where('user1Id', isEqualTo: userId)
@@ -436,27 +466,21 @@ class FirestoreService {
         .where('user2Id', isEqualTo: userId)
         .snapshots();
 
-    return Rx.combineLatest2(
-      stream1,
-      stream2,
-          (
-          QuerySnapshot<Map<String, dynamic>> s1,
-          QuerySnapshot<Map<String, dynamic>> s2,
-          ) {
+    // Combine 2 streams
+    return Rx.combineLatest2(stream1, stream2, (
+      QuerySnapshot<Map<String, dynamic>> s1,
+      QuerySnapshot<Map<String, dynamic>> s2,
+    ) {
+      final friendships = [...s1.docs, ...s2.docs];
 
-        final friendships = [
-          ...s1.docs,
-          ...s2.docs,
-        ];
-
-        return friendships
-            .map((e) => FriendshipModel.fromMap(e.data()))
-            .where((f) => !f.isBlocked)
-            .toList();
-      },
-    );
+      return friendships
+          .map((e) => FriendshipModel.fromMap(e.data()))
+          .where((f) => !f.isBlocked)
+          .toList();
+    });
   }
 
+  // Get friendship as future
   Future<FriendshipModel?> getFriendShips({
     required String user1Id,
     required String user2Id,
@@ -477,11 +501,14 @@ class FirestoreService {
       }
 
       return null;
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during get friendships ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Check user / friend is block or not
   Future<bool> isUserBlocked({
     required String userId,
     required String otherUserId,
@@ -504,11 +531,14 @@ class FirestoreService {
         return friendShip.isBlocked;
       }
       return false;
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during check is user blocked ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Check user / friend is unfriended
   Future<bool> isUnfriended({
     required String userId,
     required String otherUserId,
@@ -528,11 +558,14 @@ class FirestoreService {
         return true;
       }
       return false;
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during check is unfriended ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Create a new chat or get exist chat
   Future<String> createOrGetChat({
     required String userId1,
     required String userId2,
@@ -571,11 +604,14 @@ class FirestoreService {
         }
       }
       return chatId;
+    } on FirebaseException catch (e) {
+      throw AppException(message: FirebaseExceptions.getMessage(e.code));
     } catch (e) {
-      throw Exception("Exception during create or get chat ${e.toString()}");
+      throw AppException(message: AppMessages.exceptionMessage);
     }
   }
 
+  // Get user chat as stream
   Stream<List<ChatModel>> getUserChatStream({required String userId}) {
     return _firestore
         .collection(_chats)

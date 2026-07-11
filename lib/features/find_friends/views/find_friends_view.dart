@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:link_up/core/widgets/bottom_sheets/user_profile_bottom_sheet.dart';
 
 import '../../../theme/app_theme.dart';
 import '../../../core/enums/user_relationship_status.dart';
@@ -9,6 +8,7 @@ import '../../../core/widgets/buttons/app_button.dart';
 import '../../../core/widgets/buttons/small_app_button.dart';
 import '../../../core/widgets/loader/app_loader.dart';
 import '../../../core/widgets/text_field/app_text_field.dart';
+import '../../../core/widgets/bottom_sheets/user_profile_bottom_sheet.dart';
 import '../../auth/core/data/models/user_model.dart';
 import '../controllers/find_friends_controller.dart';
 
@@ -49,7 +49,7 @@ class _FindFriendsViewState extends State<FindFriendsView> {
     return AppTextField(
       controller: _findFriendsController.searchTextController,
       label: "",
-      hintText: "Search Friends",
+      hintText: "Search",
       prefixIcon: Icons.search,
       onChanged: (value) =>
           _findFriendsController.updateSearchQuery(query: value),

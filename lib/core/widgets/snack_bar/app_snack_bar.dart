@@ -9,6 +9,10 @@ class AppSnackBar {
     required String message,
     required BuildContext context,
   }) {
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
+
     Get.showSnackbar(
       GetSnackBar(
         titleText: Text(
@@ -41,6 +45,10 @@ class AppSnackBar {
     required String message,
     required BuildContext context,
   }) {
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
+
     Get.showSnackbar(
       GetSnackBar(
         titleText: Text(
@@ -73,6 +81,11 @@ class AppSnackBar {
     required String message,
     required BuildContext context,
   }) {
+
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
+
     Get.showSnackbar(
       GetSnackBar(
         titleText: Text(
